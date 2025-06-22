@@ -15,7 +15,7 @@ class PriceExtractor(object):
         if price_without_cents >= 100_000:
             value = price_without_cents / 1_000_000
             truncated = int(value * 1000) / 1000  # Keep 3 decimal places, no rounding
-            return f'{self.symbol}{truncated:.3f}M'
+            return f'{self.symbol}{str(truncated).lstrip("0")}M'
         elif price_without_cents >= 1_000:
             value = price_without_cents / 1_000
             truncated = int(value * 100) / 100  # Keep 2 decimal places, no rounding
