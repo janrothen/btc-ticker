@@ -13,12 +13,12 @@ def breathing_effect(strip, color=Color.RED, duration=DEFAULT_EFFECT_DURATION_MS
     """Creates a breathing effect by fading in and out"""
     while not strip._interrupt:
         # Fade in
-        fade_effect(strip, *color, duration)
+        fade_effect(strip, Color.BLACK, color, duration)
         if strip.is_interrupted():
             break
         
         # Fade out
-        fade_effect(strip, 0, 0, 0, duration)
+        fade_effect(strip, color, Color.BLACK, duration)
         if strip.is_interrupted():
             break
 
@@ -35,7 +35,7 @@ def color_cycle_effect(strip, colors=[Color.RED, Color.GREEN, Color.BLUE], durat
         for color in colors:
             if strip.is_interrupted():
                 break
-            fade_effect(strip, *color, duration)
+            fade_effect(strip, Color.BLACK, color, duration)
             sleep(1)  # Hold color for 1 second
 
 def fade_effect(strip, color_start=Color.BLACK, color_end=Color.WHITE, duration=DEFAULT_EFFECT_DURATION_MS):
