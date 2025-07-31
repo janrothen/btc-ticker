@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
 
-"""
-Main application entry point for LED strip controller.
-
-Simple entry point that sets up dependencies and delegates to
-appropriate handlers based on command-line arguments.
-"""
-
 import time
 import logging
-
 from config.config_manager import ConfigManager
 from led.profile_manager import ProfileManager
 from led.gpio_service import GPIOService
-from led.ledlightstrip_controller import LEDLightstripController
+from led.led_strip_light_controller import LEDStripLightController
 from led.effect_runner import EffectRunner
 from cli.cli_handler import CLIHandler
 from utils.graceful_shutdown import GracefulShutdown
@@ -31,7 +23,7 @@ def main():
     config_manager = ConfigManager()
     pins = config_manager.get_all_pin_assignments()
     gpio_service = GPIOService()
-    strip = LEDLightstripController(pins, gpio_service=gpio_service)
+    strip = LEDStripLightController(pins, gpio_service=gpio_service)
     profile_manager = ProfileManager(config_manager)
     
     # Initialize effect runner

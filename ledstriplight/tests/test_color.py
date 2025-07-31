@@ -11,8 +11,6 @@ from led.color import Color
 
 
 class TestColor:
-    """Test cases for Color class functionality."""
-    
     def test_color_creation(self):
         """Test basic color object creation."""
         color = Color(255, 128, 64)
@@ -87,7 +85,30 @@ class TestColor:
         assert 150 <= bright_color.red <= 255
         assert 150 <= bright_color.green <= 255
         assert 150 <= bright_color.blue <= 255
-    
+
+    def test_to_hex(self):
+        assert Color.RED.to_hex() == '#ff0000'
+        assert Color.GREEN.to_hex() == '#00ff00'
+        assert Color.BLUE.to_hex() == '#0000ff'
+        assert Color.WHITE.to_hex() == '#ffffff'
+        assert Color.BLACK.to_hex() == '#000000'
+        assert Color(17, 34, 51).to_hex() == '#112233'
+
+    def test_is_black(self):
+        assert Color(0, 0, 0).is_black() is True
+        assert Color(1, 0, 0).is_black() is False
+        assert Color(0, 1, 0).is_black() is False
+        assert Color(0, 0, 1).is_black() is False
+        assert Color(10, 20, 30).is_black() is False
+
+    def test_max_channel(self):
+        assert Color(0, 0, 0).max_channel() == 0
+        assert Color(255, 0, 0).max_channel() == 255
+        assert Color(0, 128, 0).max_channel() == 128
+        assert Color(0, 0, 64).max_channel() == 64
+        assert Color(10, 20, 30).max_channel() == 30
+        assert Color(100, 200, 150).max_channel() == 200
+
     def test_string_representation(self):
         """Test string representation methods."""
         color = Color(255, 128, 64)

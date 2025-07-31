@@ -1,13 +1,13 @@
 # LED Service Installation Guide
 
 ## Overview
-This systemd service runs the LED strip controller application as a background daemon on your Raspberry Pi.
+This systemd service runs the LED strip light controller application as a background daemon on your Raspberry Pi.
 
 ## Prerequisites
 - Raspberry Pi with Raspberry Pi OS
 - Python 3.x installed
 - pigpio daemon installed and running
-- LED strip application files in `/home/pi/raspberry/ledlightstrip/`
+- LED strip light application files in `/home/pi/raspberry/ledstriplight/`
 
 ## Installation Steps
 
@@ -75,7 +75,7 @@ sudo journalctl -u led.service --no-pager
 
 ## Configuration Notes
 
-- **Working Directory**: The service runs from `/home/pi/raspberry/ledlightstrip/`
+- **Working Directory**: The service runs from `/home/pi/raspberry/ledstriplight/`
 - **User**: Runs as the `pi` user (not root for security)
 - **Auto-restart**: The service will automatically restart if it crashes
 - **Dependencies**: Waits for network and pigpio daemon to be ready
@@ -84,14 +84,14 @@ sudo journalctl -u led.service --no-pager
 ## Troubleshooting
 
 ### Service Won't Start
-1. Check if the working directory exists: `ls -la /home/pi/raspberry/ledlightstrip/`
+1. Check if the working directory exists: `ls -la /home/pi/raspberry/ledstriplight/`
 2. Check if `run.py` is executable: `ls -la /home/pi/raspberry/led/run.py`
 3. Verify pigpio is running: `sudo systemctl status pigpiod`
 4. Check for Python errors: `sudo journalctl -u led.service`
 
 ### Permission Issues
 If you get permission errors, ensure:
-- The `pi` user owns the application files: `sudo chown -R pi:pi /home/pi/raspberry/ledlightstrip/`
+- The `pi` user owns the application files: `sudo chown -R pi:pi /home/pi/raspberry/ledstriplight/`
 - The `pi` user is in the `gpio` group: `sudo usermod -a -G gpio pi`
 
 ### Service Keeps Restarting

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-
-from threading import Thread
 import logging
+from threading import Thread
 from typing import Any, Callable, Optional, Dict
 from .color import Color
 from .gpio_service import GPIOService
@@ -12,7 +11,7 @@ G: str = 'green'
 B: str = 'blue'
 
 
-class LEDLightstripController(object):
+class LEDStripLightController(object):
     def __init__(self, pins: Dict[str, int], gpio_service: Optional[GPIOService] = None) -> None:
         self._gpio_service = gpio_service or GPIOService()
         self._pins = pins
@@ -34,15 +33,62 @@ class LEDLightstripController(object):
     def resume(self) -> None:
         self._interrupt = False
 
+    def is_on(self) -> bool:
+        return not self.get_color().is_black()
+
     def is_interrupted(self) -> bool:
         """Check if the current sequence should be interrupted."""
         return self._interrupt
+
+    def get_color(self) -> Color:
+        red = self._gpio_service.get_pin_pwm(self._pins[R])
+        green = self._gpio_service.get_pin_pwm(self._pins[G])
+        blue = self._gpio_service.get_pin_pwm(self._pins[B])
+        return Color(red, green, blue)
 
     def set_color(self, color: Color = Color.WHITE) -> None:
         logging.info(f"Set RGB to: R={color.red:6.2f} G={color.green:6.2f} B={color.blue:6.2f}")
         self._set_red_value(color.red)
         self._set_green_value(color.green)
         self._set_blue_value(color.blue)
+    
+    def get_brightness(self) -> int:
+        """Estimate brightness (0–100%) based on current RGB values."""
+        current_color = self.get_color()
+        if current_color.is_black():
+            return 0
+        
+        r = current_color.red
+        g = current_color.green
+        b = current_color.blue
+        luminance = 0.299 * r + 0.587 * g + 0.114 * b
+
+        # Convert to 0–100%
+        return round(luminance / 255 * 100)
+
+    def set_brightness(self, brightness: int) -> None:
+        """
+        Set brightness (0–100%) while keeping the same color hue.
+        Scales current RGB values proportionally.
+        """
+        if not (0 <= brightness <= 100):
+            raise ValueError("Brightness must be between 0 and 100")
+
+        current_color = self.get_color()
+        r_current = current_color.red
+        g_current = current_color.green
+        b_current = current_color.blue
+
+        current_max = current_color.max_channel()
+        if current_color.is_black():
+            r_new = g_new = b_new = int(255 * (brightness / 100))
+        else:
+            scale = (brightness / 100) * (255 / current_max)
+            r_new = int(r_current * scale)
+            g_new = int(g_current * scale)
+            b_new = int(b_current * scale)
+
+        self.set_color(Color.from_tuple((r_new, g_new, b_new)))
 
     #region Sequence control
     def run_sequence(self, func: Callable, *args: Any, **kwargs: Any) -> None:

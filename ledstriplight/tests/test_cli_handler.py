@@ -110,7 +110,7 @@ class TestCLIHandler:
         """Test that argument parser is created correctly."""
         parser = CLIHandler.create_parser()
         assert isinstance(parser, argparse.ArgumentParser)
-        assert parser.description == 'LED Strip Controller'
+        assert parser.description == 'LED Strip Light Controller'
     
     def test_parser_profile_subcommand(self):
         """Test profile subcommand parsing."""
@@ -297,7 +297,7 @@ class TestCLIHandler:
         
         # This should not raise an exception
         help_text = parser.format_help()
-        assert 'LED Strip Controller' in help_text
+        assert 'LED Strip Light Controller' in help_text
         assert 'profile' in help_text
         assert 'breathing' in help_text
         assert 'random' in help_text

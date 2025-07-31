@@ -17,7 +17,7 @@ class TestEffectRunner:
     
     @pytest.fixture
     def mock_strip_controller(self):
-        """Mock LED strip controller."""
+        """Mock LED strip light controller."""
         mock_strip = Mock()
         mock_strip.run_sequence = Mock()
         return mock_strip

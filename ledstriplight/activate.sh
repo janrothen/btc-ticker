@@ -1,10 +1,10 @@
 #!/bin/bash
-# Activation script for LED strip project
+# Activation script for LED strip light project
 
-echo "🔧 Activating LED Strip Controller environment..."
+echo "🔧 Activating LED Strip Light Controller environment..."
 source venv/bin/activate
 echo "✅ Virtual environment activated"
-echo "📁 Project: LED Strip Controller"
+echo "📁 Project: LED Strip Light Controller"
 echo "🐍 Python: $(python --version)"
 echo "📦 Pip packages: $(pip list --format=freeze | wc -l) installed"
 echo ""

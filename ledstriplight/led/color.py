@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
-
-
 import random
 from typing import Any, Tuple, Optional, ClassVar
 from dataclasses import dataclass, field
 
 MIN_COLOR_VALUE: int = 0
 MAX_COLOR_VALUE: int = 255
-
 
 
 @dataclass(frozen=True, eq=True)
@@ -101,6 +98,18 @@ class Color:
         green = random.randint(150, MAX_COLOR_VALUE)
         blue = random.randint(150, MAX_COLOR_VALUE)
         return cls(red, green, blue)
+
+    def is_black(self) -> bool:
+        """Check if the color is black (all channels are 0)."""
+        return self.red == 0 and self.green == 0 and self.blue == 0
+
+    def max_channel(self) -> int:
+        """Return the maximum channel value (R, G, or B)."""
+        return max(self.red, self.green, self.blue)
+
+    def to_hex(self) -> str:
+        """Return the color as a hex string (e.g. '#ff00ff')."""
+        return '#{:02x}{:02x}{:02x}'.format(self.red, self.green, self.blue)
 
     def __str__(self) -> str:
         return f"Color(R={self.red}, G={self.green}, B={self.blue})"

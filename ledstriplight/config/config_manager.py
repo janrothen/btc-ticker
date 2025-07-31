@@ -10,9 +10,10 @@ G = 'green'
 B = 'blue'
 COLOR_CHANNELS = (R, G, B)
 
+
 class ConfigManager:
     """
-    Configuration manager for LED strip application.
+    Configuration manager for LED strip light application.
     
     Provides a structured interface to access configuration values from config.conf,
     including GPIO pin assignments and color profiles for different times of day.

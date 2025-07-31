@@ -1,23 +1,60 @@
 #!/usr/bin/env python3
 
 """
-Tests for the LED strip controller.
+Tests for the LED strip light controller.
 
 Tests LED control functionality with mocked GPIO hardware.
 """
 
 import pytest
 from unittest.mock import Mock, patch
-from led.ledlightstrip_controller import LEDLightstripController
+from led.led_strip_light_controller import LEDStripLightController
 from led.color import Color
 
 
-class TestLEDLightstripController:
-    """Test cases for LED strip controller."""
+class TestLEDStripLightController:
+
+    @pytest.mark.parametrize("r,g,b,expected", [
+        (255, 255, 255, 100),
+        (0, 0, 0, 0),
+        (255, 0, 0, pytest.approx(29, abs=1)),
+        (0, 255, 0, pytest.approx(59, abs=1)),
+        (0, 0, 255, pytest.approx(12, abs=1)),
+    ])
+    def test_get_brightness(self, mock_gpio_service, test_pins, r, g, b, expected):
+        mock_gpio_service.get_pin_pwm.side_effect = lambda pin: {test_pins['red']: r, test_pins['green']: g, test_pins['blue']: b}[pin]
+        controller = LEDStripLightController(test_pins, mock_gpio_service)
+        assert controller.get_brightness() == expected
+
+    @pytest.mark.parametrize("initial,brightness,expected", [
+        ((255, 255, 255), 50, (127, 127, 127)),
+        ((0, 0, 0), 80, (204, 204, 204)),
+        ((255, 0, 0), 20, (51, 0, 0)),
+    ])
+    def test_set_brightness(self, mock_gpio_service, test_pins, initial, brightness, expected):
+        # Setup initial color
+        state = {test_pins['red']: initial[0], test_pins['green']: initial[1], test_pins['blue']: initial[2]}
+        def fake_get_pin_pwm(pin):
+            return state[pin]
+        def fake_set_pin_pwm(pin, value):
+            state[pin] = value
+        mock_gpio_service.get_pin_pwm.side_effect = fake_get_pin_pwm
+        mock_gpio_service.set_pin_pwm.side_effect = fake_set_pin_pwm
+        controller = LEDStripLightController(test_pins, mock_gpio_service)
+        controller.set_brightness(brightness)
+        assert (state[test_pins['red']], state[test_pins['green']], state[test_pins['blue']]) == expected
+
+    def test_set_brightness_invalid(self, mock_gpio_service, test_pins):
+        controller = LEDStripLightController(test_pins, mock_gpio_service)
+        with pytest.raises(ValueError):
+            controller.set_brightness(-1)
+        with pytest.raises(ValueError):
+            controller.set_brightness(101)
+    """Test cases for LED strip light controller."""
     
     def test_controller_creation(self, mock_gpio_service, test_pins):
         """Test controller can be created with dependencies."""
-        controller = LEDLightstripController(test_pins, mock_gpio_service)
+        controller = LEDStripLightController(test_pins, mock_gpio_service)
         
         assert controller._pins == test_pins
         assert controller._gpio_service == mock_gpio_service
@@ -40,7 +77,7 @@ class TestLEDLightstripController:
         assert actual_calls == expected_calls
     
     def test_switch_on(self, led_controller, mock_gpio_service):
-        """Test switching LED strip on."""
+        """Test switching LED strip light on."""
         led_controller.switch_on()
         
         # Should set to white (255, 255, 255)
@@ -54,7 +91,7 @@ class TestLEDLightstripController:
         assert actual_calls == expected_calls
     
     def test_switch_off(self, led_controller, mock_gpio_service):
-        """Test switching LED strip off."""
+        """Test switching LED strip light off."""
         led_controller.switch_off()
         
         # Should set to black (0, 0, 0) and manage interrupt state
@@ -77,7 +114,7 @@ class TestLEDLightstripController:
         led_controller.resume()
         assert not led_controller.is_interrupted()
     
-    @patch('led.ledlightstrip_controller.Thread')
+    @patch('led.led_strip_light_controller.Thread')
     def test_start_sequence(self, mock_thread_class, led_controller):
         """Test starting a sequence."""
         mock_thread = Mock()
@@ -104,7 +141,7 @@ class TestLEDLightstripController:
         led_controller.stop_current_sequence()
         assert led_controller._sequence is None
     
-    @patch('led.ledlightstrip_controller.Thread')
+    @patch('led.led_strip_light_controller.Thread')
     def test_run_sequence(self, mock_thread_class, led_controller):
         """Test running a sequence (stop + start)."""
         mock_thread = Mock()

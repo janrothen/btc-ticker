@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import logging
 from time import sleep
 from typing import Any, List

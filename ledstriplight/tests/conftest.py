@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 """
-Test configuration and shared fixtures for LED strip controller tests.
+Test configuration and shared fixtures for LED strip light controller tests.
 
 Provides common test utilities, fixtures, and mocked dependencies
-for testing the LED strip application without requiring actual hardware.
+for testing the LED strip light application without requiring actual hardware.
 """
 
 import pytest
@@ -18,7 +18,7 @@ sys.path.insert(0, str(project_root))
 
 from led.color import Color
 from led.gpio_service import GPIOService
-from led.ledlightstrip_controller import LEDLightstripController
+from led.led_strip_light_controller import LEDStripLightController
 from config.config_manager import ConfigManager
 
 
@@ -56,7 +56,7 @@ def mock_config_manager():
 @pytest.fixture
 def led_controller(mock_gpio_service, test_pins):
     """LED controller with mocked GPIO service."""
-    return LEDLightstripController(test_pins, gpio_service=mock_gpio_service)
+    return LEDStripLightController(test_pins, gpio_service=mock_gpio_service)
 
 
 @pytest.fixture

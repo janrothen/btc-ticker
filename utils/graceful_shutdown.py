@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 import signal
 from types import FrameType
 from typing import Optional

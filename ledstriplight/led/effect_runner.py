@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-Effect runner for managing and executing LED strip effects.
-
-Handles the routing and execution of different LED effects based on
-command-line arguments or programmatic calls.
-"""
-
 import logging
 from typing import Any, List, Optional
 from .color import Color
@@ -15,9 +8,9 @@ from .effects import breathing_effect, fade_effect, random_color_effect, color_c
 
 class EffectRunner:
     """
-    Manages and executes LED strip effects.
-    
-    Provides a clean interface for running different effects on an LED strip
+    Manages and executes LED strip light effects.
+
+    Provides a clean interface for running different effects on an LED strip light
     with various parameters and configurations.
     """
     

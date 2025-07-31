@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-Command-line interface handler for LED strip effects.
-
-Handles argument parsing and routing to appropriate effect functions.
-"""
-
 import argparse
 from led.color import Color
 
@@ -52,7 +46,7 @@ class CLIHandler:
     def create_parser():
         """Create command line argument parser."""
         parser = argparse.ArgumentParser(
-            description='LED Strip Controller',
+            description='LED Strip Light Controller',
             formatter_class=argparse.RawDescriptionHelpFormatter,
             epilog="""
 Examples:
