@@ -19,7 +19,7 @@ sys.path.insert(0, str(project_root))
 from led.color import Color
 from led.gpio_service import GPIOService
 from led.led_strip_light_controller import LEDStripLightController
-from config.config_manager import ConfigManager
+from config_manager import ConfigManager
 
 
 @pytest.fixture

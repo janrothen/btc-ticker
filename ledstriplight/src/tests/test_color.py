@@ -91,13 +91,13 @@ class TestColor:
         assert 150 <= bright_color.green <= 255
         assert 150 <= bright_color.blue <= 255
 
-    def test_to_hex(self):
-        assert Color.RED.to_hex() == '#FF0000'
-        assert Color.GREEN.to_hex() == '#00FF00'
-        assert Color.BLUE.to_hex() == '#0000FF'
-        assert Color.WHITE.to_hex() == '#FFFFFF'
-        assert Color.BLACK.to_hex() == '#000000'
-        assert Color(17, 34, 51).to_hex() == '#112233'
+    def test_to_hex_with_hash(self):
+        assert Color.RED.to_hex_with_hash() == '#FF0000'
+        assert Color.GREEN.to_hex_with_hash() == '#00FF00'
+        assert Color.BLUE.to_hex_with_hash() == '#0000FF'
+        assert Color.WHITE.to_hex_with_hash() == '#FFFFFF'
+        assert Color.BLACK.to_hex_with_hash() == '#000000'
+        assert Color(17, 34, 51).to_hex_with_hash() == '#112233'
 
     def test_is_black(self):
         assert Color(0, 0, 0).is_black() is True

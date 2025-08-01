@@ -21,10 +21,10 @@ class TestLEDStripLightController:
         (0, 255, 0, pytest.approx(59, abs=1)),
         (0, 0, 255, pytest.approx(12, abs=1)),
     ])
-    def test_get_brightness(self, mock_gpio_service, test_pins, r, g, b, expected):
+    def test_get_brightness_percentage(self, mock_gpio_service, test_pins, r, g, b, expected):
         mock_gpio_service.get_pin_pwm.side_effect = lambda pin: {test_pins['red']: r, test_pins['green']: g, test_pins['blue']: b}[pin]
         controller = LEDStripLightController(test_pins, mock_gpio_service)
-        assert controller.get_brightness() == expected
+        assert controller.get_brightness_percentage() == expected
 
     @pytest.mark.parametrize("initial,brightness,expected", [
         ((255, 255, 255), 50, (127, 127, 127)),
@@ -82,9 +82,9 @@ class TestLEDStripLightController:
         
         # Should set to white (255, 255, 255)
         expected_calls = [
-            (18, 255),  # Red pin
-            (19, 255),  # Green pin
-            (20, 255)   # Blue pin
+            (18, 239),  # Red pin
+            (19, 138),  # Green pin
+            (20, 51)   # Blue pin
         ]
         
         actual_calls = [call.args for call in mock_gpio_service.set_pin_pwm.call_args_list]

@@ -10,7 +10,7 @@ import pytest
 import tempfile
 import os
 from pathlib import Path
-from config.config_manager import ConfigManager
+from config_manager import ConfigManager
 
 
 class TestConfigManager:

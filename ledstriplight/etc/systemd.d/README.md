@@ -1,7 +1,15 @@
-# LED Service Installation Guide
+# Systemd service files overview
+
+This directory contains three systemd service files for managing the LED strip light controller on your Raspberry Pi:
+
+- **ledstriplight.service**: Main service to run the LED strip controller as a background daemon. Handles startup, shutdown, and automatic restarts.
+- **ledstriplight-http-server.service**: Runs the LED Strip Light Flask HTTP Server as a daemon (required if you want to use Homebridge)
+- **homebridge.service**: Runs the Homebridge HomeKit Server as a daemon
+
+# LED Strip Light Service Installation Guide
 
 ## Overview
-This systemd service runs the LED strip light controller application as a background daemon on your Raspberry Pi.
+This systemd services run the LED strip light controller application as a background daemon on your Raspberry Pi.
 
 ## Prerequisites
 - Raspberry Pi with Raspberry Pi OS
@@ -40,14 +48,6 @@ Start the service immediately:
 sudo systemctl start ledstriplight.service
 ```
 
-### 6. Automated scheduling
-Define when the service should start and stop—every day, only on weekdays
-Copy `ledstriplight` to `/etc/cron.d/`
-```bash
-sudo cp ledstriplight /etc/cron.d/
-sudo chmod 644 /etc/cron.d/ledstriplight
-```
-
 ## Service management commands
 
 | Command | Description |
@@ -83,7 +83,7 @@ sudo journalctl -u ledstriplight.service --no-pager
 
 ## Configuration notes
 
-- **Working directory**: The service runs from `/home/pi/raspberry/ledstriplight/`
+- **Working directory**: The service runs from `/home/pi/raspberry/ledstriplight/src`
 - **User**: Runs as the `pi` user (not root for security)
 - **Auto-restart**: The service will automatically restart if it crashes
 - **Dependencies**: Waits for network and pigpio daemon to be ready
@@ -93,7 +93,7 @@ sudo journalctl -u ledstriplight.service --no-pager
 
 ### Service won't start
 1. Check if the working directory exists: `ls -la /home/pi/raspberry/ledstriplight/`
-2. Check if `run.py` is executable: `ls -la /home/pi/raspberry/led/run.py`
+2. Check if `run.py` is executable: `ls -la /home/pi/raspberry/ledstriplight/src/run.py`
 3. Verify pigpio is running: `sudo systemctl status pigpiod`
 4. Check for Python errors: `sudo journalctl -u ledstriplight.service`
 

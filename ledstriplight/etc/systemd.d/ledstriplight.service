@@ -1,5 +1,5 @@
 # LED Strip Light Controller Service
-# This systemd service runs the LED strip light controller application as a daemon
+# This systemd service runs the LED Strip Light Controller Application as a daemon
 # 
 # Installation:
 #   1. Copy this file to /etc/systemd/system/ledstriplight.service
@@ -24,7 +24,7 @@ After=pigpiod.service
 [Service]
 Type=simple
 ExecStart=/usr/bin/python3 -u run.py profile
-WorkingDirectory=/home/pi/raspberry/ledstriplight
+WorkingDirectory=/home/pi/raspberry/ledstriplight/src
 User=pi
 Group=pi
 StandardOutput=append:/var/log/ledstriplight.log

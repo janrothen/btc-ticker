@@ -20,7 +20,7 @@ class LEDStripLightController(object):
         self._sequence = None
 
     def switch_on(self) -> None:
-        self.set_color(Color.WHITE)
+        self.set_color(Color.WARM_YELLOW)
 
     def switch_off(self) -> None:
         self.interrupt()
@@ -46,23 +46,21 @@ class LEDStripLightController(object):
         blue = self._gpio_service.get_pin_pwm(self._pins[B])
         return Color(red, green, blue)
 
-    def set_color(self, color: Color = Color.WHITE) -> None:
+    def set_color(self, color: Color = Color.WARM_YELLOW) -> None:
         logging.info(f"Set RGB to: R={color.red:6.2f} G={color.green:6.2f} B={color.blue:6.2f}")
         self._set_red_value(color.red)
         self._set_green_value(color.green)
         self._set_blue_value(color.blue)
     
-    def get_brightness(self) -> int:
-        """Estimate brightness (0–100%) based on current RGB values."""
+    def get_brightness_percentage(self) -> int:
+        """Estimate brightness percentage (0–100%) based on current RGB values."""
         current_color = self.get_color()
         if current_color.is_black():
             return 0
-        
         r = current_color.red
         g = current_color.green
         b = current_color.blue
         luminance = 0.299 * r + 0.587 * g + 0.114 * b
-
         # Convert to 0–100%
         return round(luminance / 255 * 100)
 

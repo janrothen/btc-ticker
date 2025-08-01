@@ -2,7 +2,7 @@
 
 import time
 import logging
-from config.config_manager import ConfigManager
+from config_manager import ConfigManager
 from led.profile_manager import ProfileManager
 from led.gpio_service import GPIOService
 from led.led_strip_light_controller import LEDStripLightController

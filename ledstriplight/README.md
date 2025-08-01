@@ -12,10 +12,8 @@ Feature-rich Raspberry Pi project for controlling an RGB LED strip light. Includ
 
 Easily automate, script, or integrate your LED strip with smart home platforms and custom workflows.
 
-### run.py
-Turns on the LED strip light with a color configured in config.conf.
+The guide ["How to connect RGB Strip LED Lights to Raspberry Pi Zero W"](https://danidudas.medium.com/how-to-connect-rgb-strip-led-lights-to-raspberry-pi-zero-w-and-control-from-node-js-70ddfec19f0b) shows how to physically connect a 12 V RGB strip to a Pi Zero W and drive each color channel from the command line: ￼
 
-https://danidudas.medium.com/how-to-connect-rgb-strip-led-lights-to-raspberry-pi-zero-w-and-control-from-node-js-70ddfec19f0b
 
 ## Prerequisites
 ```
@@ -28,16 +26,13 @@ python-dateutil==2.8.2
 Create symlink to utils in this directory, or imports won't work.
 Configure the scripts: `config.conf`
 
-Follow the pigpio installation instructions:
+We use the [pigpio](https://abyz.me.uk/rpi/pigpio/download.html) library for PWM control of the GPIO pins. To install it on your Raspberry Pi:
+```bash
+sudo apt-get install pigpio
 ```
-https://abyz.me.uk/rpi/pigpio/download.html
+then start the service
 ```
-or
-`sudo apt-get install pigpio`
-
-### 
-```
-$ sudo systemctl start pigpiod
+sudo systemctl start pigpiod
 ```
 
 ## Development Setup
@@ -115,20 +110,24 @@ pytest -m "not slow"
 ### Project Structure
 ```
 ledstriplight/
-├── led/                   # Core LED control modules
-│   ├── color.py           # Color management
-│   ├── effects.py         # LED effects (breathing, fade, etc.)
-│   ├── gpio_service.py    # Hardware GPIO interface
-│   ├── led_strip_light_controller.py # Main LED controller
-│   └── profile_manager.py # Time-based color profiles
-├── config/                # Configuration management
-│   └── homebridge/        # Homebridge configuration
-├── cli/                   # Command-line interface
-├── utils/                 # Utilities (logging, shutdown handling)
-├── tests/                 # Unit tests with mocked hardware
-├── service/               # Systemd service files
-├── http_server.py         # Flask REST API server
-└── run.py                 # Main application entry point
+├── etc/
+│   ├── systemd.d/               # Systemd service files and installation guide
+│   ├── cron.d/                  # Cron job files for scheduled automation
+│   └── homebridge/              # Homebridge integration
+└── src/                         # Application source code
+    ├── run.py                   # Main application entry point
+    ├── config_manager.py        # Configuration manager
+    ├── http_server.py           # Flask REST API server
+    ├── led/                     # Core LED control modules
+    │   ├── effects.py           # LED effects (breathing, fade, etc.)
+    │   ├── gpio_service.py      # Hardware GPIO interface
+    │   ├── led_strip_light_controller.py # Main LED controller
+    │   ├── profile_manager.py   # Time-based color profiles
+    │   └──effect_runner.py      # Effect runner
+    ├── cli/                     
+    │   └── cli_handler.py       # Command-line interface handler
+    ├── utils/                   # Utilities (logging, shutdown handling)
+    └── tests/                   # Unit tests with mocked hardware
 ```
 
 ## REST API (Flask Server)
@@ -155,6 +154,6 @@ curl http://localhost:5000/status
 
 ## Homebridge Integration
 
-You can integrate the LED strip with Homebridge for Apple HomeKit support. All installation and configuration instructions, including example Homebridge accessory configuration, can be found in the `config/homebridge/` directory of this repository.
+You can integrate the LED strip with Homebridge for Apple HomeKit support. All installation and configuration instructions, including example Homebridge accessory configuration, can be found in the `etc/homebridge/` directory of this repository.
 
-See [`README.md`](config/homebridge/README.md) for details on how to set up Homebridge integration and connect it to the Flask server endpoints.
+See [`README.md`](etc/homebridge/README.md) for details on how to set up Homebridge integration and connect it to the Flask server endpoints.

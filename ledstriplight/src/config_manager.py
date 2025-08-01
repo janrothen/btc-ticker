@@ -28,7 +28,7 @@ class ConfigManager:
         morning_color = config.get_profile_color('profile.morning')
     """
     
-    def __init__(self, config_file: str = 'config/config.conf') -> None:
+    def __init__(self, config_file: str = '../config.conf') -> None:
         self._config = configparser.ConfigParser()
         self._config_file = config_file
         self._load_config()

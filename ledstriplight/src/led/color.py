@@ -29,18 +29,19 @@ class Color:
     # Predefined color constants
     BLACK: ClassVar["Color"]
     WHITE: ClassVar["Color"]
+    WARM_WHITE: ClassVar["Color"]
+    COOL_WHITE: ClassVar["Color"]
     RED: ClassVar["Color"]
     GREEN: ClassVar["Color"]
     BLUE: ClassVar["Color"]
     YELLOW: ClassVar["Color"]
+    WARM_YELLOW: ClassVar["Color"]
     CYAN: ClassVar["Color"]
     MAGENTA: ClassVar["Color"]
     ORANGE: ClassVar["Color"]
     PURPLE: ClassVar["Color"]
     PINK: ClassVar["Color"]
-    WARM_WHITE: ClassVar["Color"]
-    COOL_WHITE: ClassVar["Color"]
-
+    
     def __post_init__(self):
         object.__setattr__(self, 'red', self._clamp(self.red))
         object.__setattr__(self, 'green', self._clamp(self.green))
@@ -102,9 +103,13 @@ class Color:
         """Return the maximum channel value (R, G, or B)."""
         return max(self.red, self.green, self.blue)
 
+    def to_hex_with_hash(self) -> str:
+        """Return the color as a hex string with a leading '#' (e.g. '#FF00FF')."""
+        return '#' + self.to_hex()
+
     def to_hex(self) -> str:
-        """Return the color as a hex string (e.g. '#FF00FF')."""
-        return '#{:02X}{:02X}{:02X}'.format(self.red, self.green, self.blue)
+        """Return the color as a hex string without a leading '#' (e.g. 'FF00FF')."""
+        return '{:02X}{:02X}{:02X}'.format(self.red, self.green, self.blue)
 
     def __str__(self) -> str:
         return f"Color(R={self.red}, G={self.green}, B={self.blue})"
@@ -119,14 +124,15 @@ class Color:
 # Initialize predefined colors
 Color.BLACK = Color(0, 0, 0)
 Color.WHITE = Color(255, 255, 255)
+Color.WARM_WHITE = Color(255, 200, 100)
+Color.COOL_WHITE = Color(200, 220, 255)
 Color.RED = Color(255, 0, 0)
 Color.GREEN = Color(0, 255, 0)
 Color.BLUE = Color(0, 0, 255)
 Color.YELLOW = Color(255, 255, 0)
+Color.WARM_YELLOW = Color(239, 138, 51)
 Color.CYAN = Color(0, 255, 255)
 Color.MAGENTA = Color(255, 0, 255)
 Color.ORANGE = Color(255, 165, 0)
 Color.PURPLE = Color(128, 0, 128)
 Color.PINK = Color(255, 192, 203)
-Color.WARM_WHITE = Color(255, 200, 100)
-Color.COOL_WHITE = Color(200, 220, 255)

@@ -40,7 +40,7 @@ Make sure to adjust the URLs in the [config.json](config.json) to match the netw
 
 Once done, copy the updated [config.json](config.json) to the Homebridge configuration directory:
 ```bash
-cp ledstriplight/config/homekit/config.json ~/.homebridge/config.json
+cp config.json ~/.homebridge/config.json
 ```
 This configuration enables Homebridge to communicate with your LED strip light using HTTP requests.
 
