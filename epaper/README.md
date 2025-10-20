@@ -6,7 +6,7 @@ TODO
 ## Prerequisites
 ```
 python3  
-pip3
+python3-pip
 ```
 Other requirements will be installed from [requirements.txt](requirements.txt).
 
