@@ -1,3 +1,6 @@
+import math
+
+
 class PriceExtractor:
     def __init__(self, currency: str, symbol: str) -> None:
         self.currency = currency
@@ -29,4 +32,4 @@ class PriceExtractor:
             return f"{self.symbol}{truncated:.3f}"
 
     def price_without_cents(self, price: float) -> float:
-        return float(str(price).split(".", 1)[0])
+        return float(math.floor(price))
