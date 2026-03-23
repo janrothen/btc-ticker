@@ -11,7 +11,13 @@ class Method(Enum):
     DELETE = 4
 
 
+DEFAULT_TIMEOUT = 10  # seconds
+
+
 class HttpClient:
+    def __init__(self, timeout: int = DEFAULT_TIMEOUT) -> None:
+        self.timeout = timeout
+
     def get(self, url: str) -> str:
         return self._perform(Method.GET, url)
 
@@ -28,13 +34,13 @@ class HttpClient:
         data = json.dumps(json_data) if json_data else None
 
         if method == Method.GET:
-            r = requests.get(url)
+            r = requests.get(url, timeout=self.timeout)
         elif method == Method.POST:
-            r = requests.post(url, data=data)
+            r = requests.post(url, data=data, timeout=self.timeout)
         elif method == Method.PUT:
-            r = requests.put(url, data=data)
+            r = requests.put(url, data=data, timeout=self.timeout)
         elif method == Method.DELETE:
-            r = requests.delete(url)
+            r = requests.delete(url, timeout=self.timeout)
 
         if r.status_code not in (200, 201):
             raise ConnectionError(f"\nCode: {r.status_code}\nResult: {r.text}\nData: {data}")
