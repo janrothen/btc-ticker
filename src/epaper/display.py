@@ -31,11 +31,15 @@ class PriceTicker:
     def __init__(self, price_client, price_extractor) -> None:
         self.price_client = price_client
         self.price_extractor = price_extractor
-        self._running = True
+        self._stopped = False
+        self._last_refresh = 0.0  # triggers refresh on first tick()
         self._epd = None
+        # The display is used in landscape orientation: physical width (250px)
+        # maps to EPD.height, physical height (122px) maps to EPD.width.
         self.width = 0
         self.height = 0
         self._init_display()
+        self._font = ImageFont.truetype(str(FONT_FILE), FONT_SIZE)
 
     def _init_display(self) -> None:
         self._epd = epd2in13_V2.EPD()
@@ -45,20 +49,41 @@ class PriceTicker:
         self.height = self._epd.width   # 122 pixels
 
     def start(self) -> None:
-        try:
-            self._display_image()
-            time.sleep(3)
-            self._display_price()
-        except Exception as ex:
-            logging.error(ex)
-        finally:
-            self.stop()
+        """Display the intro image and pause before the price loop begins."""
+        self._display_image()
+        time.sleep(3)
+
+    def tick(self) -> None:
+        """Run one iteration of the price refresh loop. Call repeatedly from main."""
+        if time.monotonic() - self._last_refresh >= PRICE_REFRESH_INTERVAL:
+            self._epd.init(self._epd.FULL_UPDATE)
+            self._epd.Clear(0xFF)
+
+            bg = random.choice([BLACK, WHITE])
+            fg = WHITE if bg == BLACK else BLACK
+
+            frame = Image.new("1", (self.width, self.height))
+            draw = ImageDraw.Draw(frame)
+            draw.rectangle((0, 0, self.width, self.height), fill=bg)
+
+            price = self.price_extractor.formatted_price_from_data(
+                self.price_client.retrieve_data()
+            )
+            x = self.width // 2
+            y = self.height // 2
+            draw.text((x, y), price, font=self._font, fill=fg, anchor="mm")
+
+            self._epd.display(self._epd.getbuffer(frame))
+            self._epd.sleep()
+            self._last_refresh = time.monotonic()
+
+        time.sleep(1)
 
     def stop(self) -> None:
         logging.info("shutting down")
-        if not self._running:
+        if self._stopped:
             return
-        self._running = False
+        self._stopped = True
         self._epd.init(self._epd.FULL_UPDATE)
         self._epd.Clear(0xFF)
         self._epd.sleep()
@@ -69,32 +94,3 @@ class PriceTicker:
         frame = Image.new("1", (self.width, self.height))
         frame.paste(image, (padding_left, 0))
         self._epd.display(self._epd.getbuffer(frame))
-
-    def _display_price(self) -> None:
-        font = ImageFont.truetype(str(FONT_FILE), FONT_SIZE)
-        last_refresh = 0.0  # trigger immediate refresh on first iteration
-
-        while self._running:
-            if time.monotonic() - last_refresh >= PRICE_REFRESH_INTERVAL:
-                self._epd.init(self._epd.FULL_UPDATE)
-                self._epd.Clear(0xFF)
-
-                bg = random.choice([BLACK, WHITE])
-                fg = WHITE if bg == BLACK else BLACK
-
-                frame = Image.new("1", (self.width, self.height))
-                draw = ImageDraw.Draw(frame)
-                draw.rectangle((0, 0, self.width, self.height), fill=bg)
-
-                price = self.price_extractor.formatted_price_from_data(
-                    self.price_client.retrieve_data()
-                )
-                x = self.width // 2
-                y = self.height // 2
-                draw.text((x, y), price, font=font, fill=fg, anchor="mm")
-
-                self._epd.display(self._epd.getbuffer(frame))
-                self._epd.sleep()
-                last_refresh = time.monotonic()
-
-            time.sleep(1)

@@ -13,7 +13,7 @@ from epaper.price.client import BitcoinPriceClient
 from epaper.price.extractor import PriceExtractor
 from epaper.utils.graceful_shutdown import GracefulShutdown
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def main() -> None:
@@ -22,20 +22,16 @@ def main() -> None:
     ticker = PriceTicker(price_client, price_extractor)
     shutdown = GracefulShutdown()
 
-    def _on_signal(signum, frame):
-        shutdown._exit(signum, frame)
-        ticker.stop()
-
-    signal.signal(signal.SIGINT, _on_signal)
-    signal.signal(signal.SIGTERM, _on_signal)
-
     try:
         ticker.start()
+        while not shutdown.kill_now:
+            ticker.tick()
     except Exception as ex:
         logging.error(ex)
-        ticker.stop()
         traceback.print_exc(file=sys.stdout)
         sys.exit(1)
+    finally:
+        ticker.stop()
 
 
 if __name__ == "__main__":
