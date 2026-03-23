@@ -1,6 +1,8 @@
 import json
 import logging
 
+import requests
+
 from epaper.config import config
 from epaper.http_client import HttpClient
 
@@ -12,6 +14,6 @@ class BitcoinPriceClient:
             result = HttpClient().get(endpoint)
             if result:
                 return json.loads(result)
-        except ConnectionError as e:
+        except (ConnectionError, requests.RequestException, json.JSONDecodeError) as e:
             logging.error(str(e))
         return None

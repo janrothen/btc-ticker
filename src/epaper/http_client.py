@@ -42,7 +42,7 @@ class HttpClient:
         elif method == Method.DELETE:
             r = requests.delete(url, timeout=self.timeout)
 
-        if r.status_code not in (200, 201):
+        if not (200 <= r.status_code < 300):
             raise ConnectionError(f"\nCode: {r.status_code}\nResult: {r.text}\nData: {data}")
 
         return r.text

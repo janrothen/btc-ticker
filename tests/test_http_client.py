@@ -4,6 +4,29 @@ from unittest.mock import patch, MagicMock
 from epaper.http_client import HttpClient, DEFAULT_TIMEOUT
 
 
+class TestHttpClientStatusCodes(unittest.TestCase):
+    def _mock_response(self, status_code=200, text="{}"):
+        mock = MagicMock()
+        mock.status_code = status_code
+        mock.text = text
+        return mock
+
+    def test_2xx_codes_do_not_raise(self):
+        for code in (200, 201, 204, 206):
+            with patch("epaper.http_client.requests.get", return_value=self._mock_response(code)):
+                HttpClient().get("http://example.com")  # must not raise
+
+    def test_4xx_raises_connection_error(self):
+        with patch("epaper.http_client.requests.get", return_value=self._mock_response(404)):
+            with self.assertRaises(ConnectionError):
+                HttpClient().get("http://example.com")
+
+    def test_5xx_raises_connection_error(self):
+        with patch("epaper.http_client.requests.get", return_value=self._mock_response(500)):
+            with self.assertRaises(ConnectionError):
+                HttpClient().get("http://example.com")
+
+
 class TestHttpClientTimeout(unittest.TestCase):
     def _mock_response(self, status_code=200, text="{}"):
         mock = MagicMock()

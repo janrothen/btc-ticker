@@ -6,7 +6,12 @@ class PriceExtractor:
     def formatted_price_from_data(self, data: dict) -> str:
         if not data:
             return "N/A"
-        price = data[self.currency]["last"]
+        currency_data = data.get(self.currency)
+        if not currency_data:
+            return "N/A"
+        price = currency_data.get("last")
+        if price is None:
+            return "N/A"
         return self.format_price(price)
 
     def format_price(self, price: float) -> str:
