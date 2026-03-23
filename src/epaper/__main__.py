@@ -1,5 +1,6 @@
 import logging
 import os
+import signal
 import sys
 import traceback
 
@@ -21,14 +22,10 @@ def main() -> None:
     ticker = PriceTicker(price_client, price_extractor)
     shutdown = GracefulShutdown()
 
-    # Wire shutdown signal into the ticker
-    original_exit = shutdown._exit
-
     def _on_signal(signum, frame):
-        original_exit(signum, frame)
+        shutdown._exit(signum, frame)
         ticker.stop()
 
-    import signal
     signal.signal(signal.SIGINT, _on_signal)
     signal.signal(signal.SIGTERM, _on_signal)
 
