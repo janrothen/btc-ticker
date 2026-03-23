@@ -26,7 +26,7 @@ sudo usermod -aG spi,gpio $USER
 
 ```bash
 # Install the service unit
-sudo cp epaper.service /etc/systemd/system/
+sudo cp systemd/epaper.service /etc/systemd/system/
 sudo systemctl daemon-reload
 
 # Enable (start on boot) and start immediately
