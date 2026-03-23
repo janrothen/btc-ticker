@@ -1,6 +1,11 @@
 import logging
+import os
 import sys
 import traceback
+
+from epaper.config import config
+
+os.environ.setdefault("GPIOZERO_PIN_FACTORY", config().get("gpiozero", {}).get("pin_factory", "pigpio"))
 
 from epaper.display import PriceTicker
 from epaper.price.client import BitcoinPriceClient

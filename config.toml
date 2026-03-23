@@ -1,2 +1,5 @@
 [bitcoin.price]
 service_endpoint = "https://blockchain.info/ticker"
+
+[gpiozero]
+pin_factory = "pigpio"
