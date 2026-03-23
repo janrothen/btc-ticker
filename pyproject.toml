@@ -14,9 +14,9 @@ dependencies = [
 
 [project.optional-dependencies]
 rpi = [
-    "RPi.GPIO==0.7.1",
-    "spidev==3.4",
-    "pigpio==1.44",
+    "RPi.GPIO>=0.7.1",
+    "spidev>=3.8",
+    "pigpio>=1.78",
     "gpiozero>=1.6.2",
     "numpy>=2.0.0",
     "waveshare-epd @ git+https://github.com/waveshareteam/e-Paper.git#subdirectory=RaspberryPi_JetsonNano/python",
