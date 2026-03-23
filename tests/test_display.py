@@ -40,7 +40,7 @@ class TestPriceTickerStop(unittest.TestCase):
         self.assertFalse(self.ticker._running)
 
 
-class TestPriceTickerTextCentering(unittest.TestCase):
+class TestPriceTickerRefreshTiming(unittest.TestCase):
     def setUp(self):
         fake_mod, self.mock_epd = _make_mock_epd2in13_module()
         sys.modules.setdefault("epaper.lib.epdconfig", MagicMock())

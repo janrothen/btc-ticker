@@ -1,7 +1,4 @@
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib  # type: ignore[no-redef]
+import tomllib
 from pathlib import Path
 
 # Prefer config.toml next to the current working directory (production: the

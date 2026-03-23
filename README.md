@@ -6,7 +6,7 @@ Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2i
 
 - Raspberry Pi (tested on Pi 5)
 - Waveshare 2.13" e-ink display (epd2in13 V2)
-- Python 3.9+
+- Python 3.13+
 
 ## Install & run
 

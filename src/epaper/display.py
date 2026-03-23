@@ -72,10 +72,10 @@ class PriceTicker:
 
     def _display_price(self) -> None:
         font = ImageFont.truetype(str(FONT_FILE), FONT_SIZE)
-        counter = 0
+        last_refresh = 0.0  # trigger immediate refresh on first iteration
 
         while self._running:
-            if counter % PRICE_REFRESH_INTERVAL == 0:
+            if time.monotonic() - last_refresh >= PRICE_REFRESH_INTERVAL:
                 self._epd.init(self._epd.FULL_UPDATE)
                 self._epd.Clear(0xFF)
 
@@ -95,8 +95,6 @@ class PriceTicker:
 
                 self._epd.display(self._epd.getbuffer(frame))
                 self._epd.sleep()
+                last_refresh = time.monotonic()
 
             time.sleep(1)
-            counter += 1
-            if counter >= PRICE_REFRESH_INTERVAL:
-                counter = 0
