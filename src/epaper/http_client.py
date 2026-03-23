@@ -1,14 +1,6 @@
 import json
-from enum import Enum
 
 import requests
-
-
-class Method(Enum):
-    GET = 1
-    POST = 2
-    PUT = 3
-    DELETE = 4
 
 
 DEFAULT_TIMEOUT = 10  # seconds
@@ -19,30 +11,20 @@ class HttpClient:
         self.timeout = timeout
 
     def get(self, url: str) -> str:
-        return self._perform(Method.GET, url)
+        return self._check(requests.get(url, timeout=self.timeout))
 
     def post(self, url: str, json_data=None) -> str:
-        return self._perform(Method.POST, url, json_data)
+        data = json.dumps(json_data) if json_data else None
+        return self._check(requests.post(url, data=data, timeout=self.timeout))
 
     def put(self, url: str, json_data=None) -> str:
-        return self._perform(Method.PUT, url, json_data)
+        data = json.dumps(json_data) if json_data else None
+        return self._check(requests.put(url, data=data, timeout=self.timeout))
 
     def delete(self, url: str) -> str:
-        return self._perform(Method.DELETE, url)
+        return self._check(requests.delete(url, timeout=self.timeout))
 
-    def _perform(self, method: Method, url: str, json_data=None) -> str:
-        data = json.dumps(json_data) if json_data else None
-
-        if method == Method.GET:
-            r = requests.get(url, timeout=self.timeout)
-        elif method == Method.POST:
-            r = requests.post(url, data=data, timeout=self.timeout)
-        elif method == Method.PUT:
-            r = requests.put(url, data=data, timeout=self.timeout)
-        elif method == Method.DELETE:
-            r = requests.delete(url, timeout=self.timeout)
-
+    def _check(self, r) -> str:
         if not (200 <= r.status_code < 300):
-            raise ConnectionError(f"\nCode: {r.status_code}\nResult: {r.text}\nData: {data}")
-
+            raise ConnectionError(f"\nCode: {r.status_code}\nResult: {r.text}")
         return r.text

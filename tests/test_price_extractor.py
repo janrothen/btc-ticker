@@ -5,7 +5,7 @@ from epaper.price.extractor import PriceExtractor
 
 class TestPriceExtractor(unittest.TestCase):
     def setUp(self):
-        self.extractor = PriceExtractor(currency="usd", symbol="$")
+        self.extractor = PriceExtractor(currency="USD", symbol="$")
 
     def test_format_price_in_millions(self):
         self.assertEqual(self.extractor.format_price(1234567), "$1.234M")
