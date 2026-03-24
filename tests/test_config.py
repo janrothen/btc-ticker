@@ -13,7 +13,6 @@ class TestConfigLoader(unittest.TestCase):
     def _fresh_config_module(self):
         sys.modules.pop("epaper.config", None)
         import epaper.config
-        epaper.config._config = None
         return epaper.config
 
     def test_loads_from_cwd_when_config_toml_present(self):
@@ -30,7 +29,6 @@ class TestConfigLoader(unittest.TestCase):
 
     def test_falls_back_to_repo_config_when_no_cwd_config(self):
         with tempfile.TemporaryDirectory() as tmpdir:
-            # tmpdir has no config.toml
             with patch("pathlib.Path.cwd", return_value=Path(tmpdir)):
                 mod = self._fresh_config_module()
 
@@ -39,6 +37,7 @@ class TestConfigLoader(unittest.TestCase):
     def test_config_loads_from_repo_config(self):
         mod = self._fresh_config_module()
         mod._CONFIG_PATH = _REAL_CONFIG
+        mod.config.cache_clear()
         result = mod.config()
         self.assertIsInstance(result, dict)
         self.assertIn("bitcoin", result)

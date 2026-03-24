@@ -1,4 +1,5 @@
 import tomllib
+from functools import lru_cache
 from pathlib import Path
 
 # Prefer config.toml next to the current working directory (production: the
@@ -7,12 +8,8 @@ _CWD_CONFIG = Path.cwd() / "config.toml"
 _REPO_CONFIG = Path(__file__).parents[2] / "config.toml"
 _CONFIG_PATH = _CWD_CONFIG if _CWD_CONFIG.exists() else _REPO_CONFIG
 
-_config = None
 
-
+@lru_cache(maxsize=None)
 def config() -> dict:
-    global _config
-    if _config is None:
-        with open(_CONFIG_PATH, "rb") as f:
-            _config = tomllib.load(f)
-    return _config
+    with open(_CONFIG_PATH, "rb") as f:
+        return tomllib.load(f)
