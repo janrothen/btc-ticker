@@ -47,7 +47,6 @@ class PriceTicker:
         """Run one iteration of the price refresh loop. Call repeatedly from main."""
         if time.monotonic() - self._last_refresh >= self._refresh_interval:
             self.display.init()
-            self.display.clear()
 
             bg = random.choice([BLACK, WHITE])
             fg = WHITE if bg == BLACK else BLACK
