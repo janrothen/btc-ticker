@@ -29,6 +29,10 @@ config.toml          # runtime config (service endpoint)
 pyproject.toml       # packaging and dependencies
 ```
 
+## Off-limits files
+- `lib/` — vendored Waveshare code (excluded via .claudeignore), treat as a black box.
+  Reference the API it exposes but never modify the files.
+
 ## Dev/test
 ```bash
 python -m venv .venv
