@@ -9,6 +9,9 @@ WorkingDirectory=/home/pi/epaper
 ExecStart=/home/pi/epaper/.venv/bin/python -m epaper
 Restart=on-failure
 RestartSec=10
+Type=notify
+WatchdogSec=60
+NotifyAccess=main
 
 [Install]
 WantedBy=multi-user.target

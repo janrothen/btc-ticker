@@ -12,6 +12,7 @@ from epaper.display import PriceTicker
 from epaper.price.client import BitcoinPriceClient
 from epaper.price.extractor import PriceExtractor
 from epaper.utils.graceful_shutdown import GracefulShutdown
+from epaper.utils.watchdog import sd_notify
 
 logging.basicConfig(level=logging.INFO)
 
@@ -24,8 +25,10 @@ def main() -> None:
 
     try:
         ticker.start()
+        sd_notify("READY=1")
         while not shutdown.kill_now:
             ticker.tick()
+            sd_notify("WATCHDOG=1")
     except Exception as ex:
         logging.error(ex)
         traceback.print_exc(file=sys.stdout)
