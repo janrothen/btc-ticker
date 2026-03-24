@@ -9,7 +9,7 @@ from epaper.price.client import BitcoinPriceClient, MAX_RETRIES, RETRY_DELAY
 from epaper.price.extractor import PriceExtractor
 from epaper.price.mock import BitcoinPriceClientMock
 
-FIXTURE = Path(__file__).parents[1] / "mock_data.json"
+FIXTURE = Path(__file__).parent / "mock_data.json"
 
 
 class TestPriceExtractorIntegration(unittest.TestCase):
