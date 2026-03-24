@@ -16,7 +16,7 @@ refresh_interval = 300  # seconds between price refreshes
 
 ## Requirements
 
-- Raspberry Pi (tested on Pi 5)
+- Raspberry Pi (tested on Pi 4 Model B Rev 1.4)
 - Waveshare 2.13" e-ink display (epd2in13 V2)
 - Python 3.13+
 
