@@ -18,7 +18,7 @@ rpi = [
     "pigpio>=1.78",
     "gpiozero>=1.6.2",
     "numpy>=2.0.0",
-    "waveshare-epd @ git+https://github.com/waveshareteam/e-Paper.git#subdirectory=RaspberryPi_JetsonNano/python",
+    "waveshare-epd @ git+https://github.com/waveshareteam/e-Paper.git@86aa9932f471a50157cf02fafadc2c1b4a965449#subdirectory=RaspberryPi_JetsonNano/python",
 ]
 dev = [
     "pytest>=8.0.0",
