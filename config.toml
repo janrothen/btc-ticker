@@ -1,8 +1,11 @@
 [bitcoin.price]
 service_endpoint = "https://blockchain.info/ticker"
-currency = "USD"
-symbol = "$"
-refresh_interval = 300  # seconds
+currency = "USD"          # currency code returned by the API (e.g. "CHF", "EUR")
+symbol = "$"              # symbol shown on the display (e.g. "CHF ", "€")
+refresh_interval = 300    # seconds between price refreshes
 
 [gpiozero]
+# GPIO backend used by gpiozero to drive the SPI/GPIO pins.
+# "pigpio" is recommended for Raspberry Pi (requires the pigpiod daemon).
+# Other valid values: "rpigpio", "native". See gpiozero docs for details.
 pin_factory = "pigpio"

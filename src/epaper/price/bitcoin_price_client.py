@@ -12,7 +12,17 @@ RETRY_DELAY = 5  # seconds between attempts
 
 
 class BitcoinPriceClient:
+    """Fetches the current Bitcoin price from the configured ticker endpoint.
+
+    The endpoint is expected to return a JSON object keyed by currency code,
+    e.g. {"USD": {"last": 84500.0, ...}, "CHF": {"last": 75000.0, ...}}.
+    """
+
     def retrieve_data(self) -> dict | None:
+        """Fetch price data, retrying up to MAX_RETRIES times on failure.
+
+        Returns the parsed JSON dict on success, or None if all attempts fail.
+        """
         endpoint = config()["bitcoin"]["price"]["service_endpoint"]
         for attempt in range(1, MAX_RETRIES + 1):
             try:

@@ -20,6 +20,16 @@ class PriceExtractor:
         return self.format_price(price)
 
     def format_price(self, price: float) -> str:
+        """Format a price for display on the e-paper screen.
+
+        Thresholds (applied to the whole-dollar value, cents stripped):
+          >= 100,000 → millions, e.g. "$1.234M" or "$.1M"
+          >=   1,000 → thousands, e.g. "$84.99k" or "$50k"
+          <    1,000 → raw integer, e.g. "$999"
+
+        Trailing zeros are stripped. Values are truncated, never rounded,
+        so the display never shows a price higher than the actual value.
+        """
         p = self.price_without_cents(price)
         match p:
             case p if p >= 100_000:

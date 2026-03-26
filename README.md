@@ -9,10 +9,28 @@ Edit `config.toml` to customise the behaviour:
 ```toml
 [bitcoin.price]
 service_endpoint = "https://blockchain.info/ticker"
-currency = "USD"   # currency code returned by the API (e.g. "CHF")
-symbol = "$"       # symbol shown on the display (e.g. "CHF")
+currency = "USD"   # currency code returned by the API (e.g. "CHF", "EUR")
+symbol = "$"       # symbol shown on the display (e.g. "CHF ", "€")
 refresh_interval = 300  # seconds between price refreshes
 ```
+
+**To display a different currency**, set `currency` to any code the API returns and `symbol` to the label you want shown on screen. For example, to show Swiss francs:
+
+```toml
+currency = "CHF"
+symbol = "CHF "
+```
+
+The `service_endpoint` must return JSON in this shape (the [blockchain.info ticker](https://blockchain.info/ticker) is the default):
+
+```json
+{
+  "USD": { "last": 84500.0, ... },
+  "CHF": { "last": 75000.0, ... }
+}
+```
+
+Any endpoint that returns this structure works as a drop-in replacement.
 
 ## Requirements
 
@@ -34,7 +52,18 @@ If you get permission errors on SPI/GPIO devices, add your user to the required 
 sudo usermod -aG spi,gpio $USER
 ```
 
+## Development
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+```
+
 ## Run as a systemd service (auto-start on boot, auto-restart on failure)
+
+Open `systemd/epaper.service` and adjust `User`, `WorkingDirectory`, and `ExecStart` to match your username and install path before copying it.
 
 ```bash
 # Install the service unit

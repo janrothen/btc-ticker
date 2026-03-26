@@ -4,6 +4,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
+# Adjust User, WorkingDirectory, and ExecStart to match your install location.
 User=pi
 WorkingDirectory=/home/pi/e-paper
 ExecStart=/home/pi/e-paper/.venv/bin/python -m epaper

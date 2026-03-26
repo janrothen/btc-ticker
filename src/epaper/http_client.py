@@ -7,6 +7,9 @@ DEFAULT_TIMEOUT = 10  # seconds
 
 
 class HttpClient:
+    """Thin wrapper around requests that enforces a timeout and raises
+    ConnectionError for any non-2xx response."""
+
     def __init__(self, timeout: int = DEFAULT_TIMEOUT) -> None:
         self.timeout = timeout
 
