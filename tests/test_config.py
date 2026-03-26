@@ -42,7 +42,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertIsInstance(result, dict)
         self.assertIn("bitcoin", result)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         sys.modules.pop("epaper.config", None)
 
 

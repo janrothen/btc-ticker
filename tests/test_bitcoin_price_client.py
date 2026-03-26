@@ -13,7 +13,7 @@ FIXTURE = Path(__file__).parent / "mock_data.json"
 
 
 class TestPriceExtractorIntegration(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.data = BitcoinPriceClientMock(FIXTURE).retrieve_data()
 
     def test_format_usd_price(self):
