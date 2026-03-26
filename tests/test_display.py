@@ -22,7 +22,7 @@ def _stub_epd_module():
 
 
 class TestDisplay(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.mock_epd = _stub_epd_module()
         from epaper.display import Display
         self.display = Display()

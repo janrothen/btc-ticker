@@ -20,7 +20,7 @@ def _make_ticker():
 
 
 class TestPriceTickerStop(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.ticker, self.mock_display = _make_ticker()
 
     def test_stop_only_shuts_down_display_once(self):
@@ -35,7 +35,7 @@ class TestPriceTickerStop(unittest.TestCase):
 
 
 class TestPriceTickerRefreshTiming(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.ticker, self.mock_display = _make_ticker()
 
     def _run_tick(self, monotonic_values):
@@ -69,7 +69,7 @@ class TestPriceTickerRefreshTiming(unittest.TestCase):
 
 
 class TestPriceTickerTextCentering(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.ticker, _ = _make_ticker()
         self.mock_draw = MagicMock()
         self.ticker.price_extractor.formatted_price_from_data.return_value = "$84.99k"
