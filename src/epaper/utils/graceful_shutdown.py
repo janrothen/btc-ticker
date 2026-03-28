@@ -32,5 +32,7 @@ class GracefulShutdown:
         signal.signal(signal.SIGTERM, self._exit)
 
     def _exit(self, signum: int, frame: FrameType | None) -> None:
-        print(f"Received signal {signum}, shutting down...")  # logging isn't fully reentrant inside signal handlers
+        print(
+            f"Received signal {signum}, shutting down..."
+        )  # logging isn't fully reentrant inside signal handlers
         self.kill_now = True

@@ -25,6 +25,7 @@ class TestDisplay(unittest.TestCase):
     def setUp(self) -> None:
         self.mock_epd = _stub_epd_module()
         from epaper.display import Display
+
         self.display = Display()
 
     def test_width_and_height_reflect_landscape_orientation(self):

@@ -10,6 +10,7 @@ def _make_ticker():
 
     with patch("epaper.price_ticker.ImageFont.truetype", return_value=MagicMock()):
         from epaper.price_ticker import PriceTicker
+
         ticker = PriceTicker(
             display=mock_display,
             price_client=MagicMock(),
@@ -39,10 +40,12 @@ class TestPriceTickerRefreshTiming(unittest.TestCase):
         self.ticker, self.mock_display = _make_ticker()
 
     def _run_tick(self, monotonic_values):
-        with patch("epaper.price_ticker.time.monotonic", side_effect=monotonic_values), \
-             patch("epaper.price_ticker.time.sleep"), \
-             patch("epaper.price_ticker.Image.new", return_value=MagicMock()), \
-             patch("epaper.price_ticker.ImageDraw.Draw", return_value=MagicMock()):
+        with (
+            patch("epaper.price_ticker.time.monotonic", side_effect=monotonic_values),
+            patch("epaper.price_ticker.time.sleep"),
+            patch("epaper.price_ticker.Image.new", return_value=MagicMock()),
+            patch("epaper.price_ticker.ImageDraw.Draw", return_value=MagicMock()),
+        ):
             self.ticker.tick()
 
     def test_first_tick_always_refreshes(self):
@@ -51,6 +54,7 @@ class TestPriceTickerRefreshTiming(unittest.TestCase):
 
     def test_no_refresh_within_interval(self):
         from epaper.price_ticker import DEFAULT_REFRESH_INTERVAL
+
         t1 = 9999.0
         self._run_tick([t1, t1])
 
@@ -60,6 +64,7 @@ class TestPriceTickerRefreshTiming(unittest.TestCase):
 
     def test_refresh_after_interval_elapsed(self):
         from epaper.price_ticker import DEFAULT_REFRESH_INTERVAL
+
         t1 = 9999.0
         self._run_tick([t1, t1])
 
@@ -75,13 +80,15 @@ class TestPriceTickerTextCentering(unittest.TestCase):
         self.ticker.price_extractor.formatted_price_from_data.return_value = "$84.99k"
 
     def test_price_drawn_at_canvas_center_with_mm_anchor(self):
-        expected_x = self.ticker.display.width // 2   # 125
+        expected_x = self.ticker.display.width // 2  # 125
         expected_y = self.ticker.display.height // 2  # 61
 
-        with patch("epaper.price_ticker.time.monotonic", return_value=9999.0), \
-             patch("epaper.price_ticker.time.sleep"), \
-             patch("epaper.price_ticker.Image.new", return_value=MagicMock()), \
-             patch("epaper.price_ticker.ImageDraw.Draw", return_value=self.mock_draw):
+        with (
+            patch("epaper.price_ticker.time.monotonic", return_value=9999.0),
+            patch("epaper.price_ticker.time.sleep"),
+            patch("epaper.price_ticker.Image.new", return_value=MagicMock()),
+            patch("epaper.price_ticker.ImageDraw.Draw", return_value=self.mock_draw),
+        ):
             self.ticker.tick()
 
         self.mock_draw.text.assert_called_once()

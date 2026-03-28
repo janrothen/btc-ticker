@@ -4,15 +4,15 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-
 _REAL_CONFIG = Path(__file__).parents[1] / "config.toml"
-_MINIMAL_TOML = b"[bitcoin.price]\nservice_endpoint = \"http://example.com\"\n"
+_MINIMAL_TOML = b'[bitcoin.price]\nservice_endpoint = "http://example.com"\n'
 
 
 class TestConfigLoader(unittest.TestCase):
     def _fresh_config_module(self):
         sys.modules.pop("epaper.config", None)
         import epaper.config
+
         return epaper.config
 
     def test_loads_from_cwd_when_config_toml_present(self):

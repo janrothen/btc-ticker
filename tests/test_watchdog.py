@@ -43,7 +43,9 @@ class TestSdNotify(unittest.TestCase):
             self.assertEqual(data, b"WATCHDOG=1")
 
     def test_silently_ignores_missing_socket_env(self):
-        env_without_socket = {k: v for k, v in os.environ.items() if k != "NOTIFY_SOCKET"}
+        env_without_socket = {
+            k: v for k, v in os.environ.items() if k != "NOTIFY_SOCKET"
+        }
         with patch.dict(os.environ, env_without_socket, clear=True):
             sd_notify("READY=1")  # must not raise
 

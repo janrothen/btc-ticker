@@ -2,7 +2,6 @@ import json
 
 import requests
 
-
 DEFAULT_TIMEOUT = 10  # seconds
 
 

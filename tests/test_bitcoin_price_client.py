@@ -1,13 +1,17 @@
 import json
 import unittest
 from pathlib import Path
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch
 
 import requests
 
-from epaper.price.bitcoin_price_client import BitcoinPriceClient, MAX_RETRIES, RETRY_DELAY
-from epaper.price.price_extractor import PriceExtractor
+from epaper.price.bitcoin_price_client import (
+    MAX_RETRIES,
+    RETRY_DELAY,
+    BitcoinPriceClient,
+)
 from epaper.price.mock import BitcoinPriceClientMock
+from epaper.price.price_extractor import PriceExtractor
 
 FIXTURE = Path(__file__).parent / "mock_data.json"
 
@@ -36,8 +40,10 @@ class TestPriceExtractorIntegration(unittest.TestCase):
 
 class TestBitcoinPriceClientErrorHandling(unittest.TestCase):
     def _run_with_error(self, side_effect):
-        with patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp, \
-             patch("epaper.price.bitcoin_price_client.time.sleep"):
+        with (
+            patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp,
+            patch("epaper.price.bitcoin_price_client.time.sleep"),
+        ):
             MockHttp.return_value.get.side_effect = side_effect
             return BitcoinPriceClient().retrieve_data()
 
@@ -48,11 +54,15 @@ class TestBitcoinPriceClientErrorHandling(unittest.TestCase):
         self.assertIsNone(self._run_with_error(requests.Timeout("timed out")))
 
     def test_requests_exception_returns_none(self):
-        self.assertIsNone(self._run_with_error(requests.RequestException("network error")))
+        self.assertIsNone(
+            self._run_with_error(requests.RequestException("network error"))
+        )
 
     def test_malformed_json_returns_none(self):
-        with patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp, \
-             patch("epaper.price.bitcoin_price_client.time.sleep"):
+        with (
+            patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp,
+            patch("epaper.price.bitcoin_price_client.time.sleep"),
+        ):
             MockHttp.return_value.get.return_value = "not valid json {"
             self.assertIsNone(BitcoinPriceClient().retrieve_data())
 
@@ -60,8 +70,10 @@ class TestBitcoinPriceClientErrorHandling(unittest.TestCase):
 class TestBitcoinPriceClientRetry(unittest.TestCase):
     def test_succeeds_on_first_attempt_without_retrying(self):
         good_response = json.dumps({"USD": {"last": 50000}})
-        with patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp, \
-             patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep:
+        with (
+            patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp,
+            patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep,
+        ):
             MockHttp.return_value.get.return_value = good_response
             result = BitcoinPriceClient().retrieve_data()
 
@@ -70,8 +82,10 @@ class TestBitcoinPriceClientRetry(unittest.TestCase):
 
     def test_retries_on_failure_and_returns_data_on_success(self):
         good_response = json.dumps({"USD": {"last": 50000}})
-        with patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp, \
-             patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep:
+        with (
+            patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp,
+            patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep,
+        ):
             # Fail twice, succeed on third attempt
             MockHttp.return_value.get.side_effect = [
                 ConnectionError("fail"),
@@ -85,18 +99,24 @@ class TestBitcoinPriceClientRetry(unittest.TestCase):
         mock_sleep.assert_called_with(RETRY_DELAY)
 
     def test_exhausts_all_retries_and_returns_none(self):
-        with patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp, \
-             patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep:
+        with (
+            patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp,
+            patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep,
+        ):
             MockHttp.return_value.get.side_effect = ConnectionError("always fails")
             result = BitcoinPriceClient().retrieve_data()
 
         self.assertIsNone(result)
         self.assertEqual(MockHttp.return_value.get.call_count, MAX_RETRIES)
-        self.assertEqual(mock_sleep.call_count, MAX_RETRIES - 1)  # no sleep after last attempt
+        self.assertEqual(
+            mock_sleep.call_count, MAX_RETRIES - 1
+        )  # no sleep after last attempt
 
     def test_no_sleep_after_last_failed_attempt(self):
-        with patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp, \
-             patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep:
+        with (
+            patch("epaper.price.bitcoin_price_client.HttpClient") as MockHttp,
+            patch("epaper.price.bitcoin_price_client.time.sleep") as mock_sleep,
+        ):
             MockHttp.return_value.get.side_effect = ConnectionError("fail")
             BitcoinPriceClient().retrieve_data()
 

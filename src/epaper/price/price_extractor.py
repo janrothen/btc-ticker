@@ -34,12 +34,16 @@ class PriceExtractor:
         match p:
             case p if p >= 100_000:
                 value = p / 1_000_000
-                truncated = int(value * 1000) / 1000  # truncate to 3 decimal places, no rounding
+                truncated = (
+                    int(value * 1000) / 1000
+                )  # truncate to 3 decimal places, no rounding
                 formatted = f"{truncated:.3f}".rstrip("0").rstrip(".")
-                return f'{self.symbol}{formatted.lstrip("0")}M'
+                return f"{self.symbol}{formatted.lstrip('0')}M"
             case p if p >= 1_000:
                 value = p / 1_000
-                truncated = int(value * 100) / 100  # truncate to 2 decimal places, no rounding
+                truncated = (
+                    int(value * 100) / 100
+                )  # truncate to 2 decimal places, no rounding
                 formatted = f"{truncated:.2f}".rstrip("0").rstrip(".")
                 return f"{self.symbol}{formatted}k"
             case p:

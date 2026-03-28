@@ -29,8 +29,14 @@ class BitcoinPriceClient:
                 result = HttpClient().get(endpoint)
                 if result:
                     return json.loads(result)
-            except (ConnectionError, requests.RequestException, json.JSONDecodeError) as e:
-                logging.warning("Price fetch attempt %d/%d failed: %s", attempt, MAX_RETRIES, e)
+            except (
+                ConnectionError,
+                requests.RequestException,
+                json.JSONDecodeError,
+            ) as e:
+                logging.warning(
+                    "Price fetch attempt %d/%d failed: %s", attempt, MAX_RETRIES, e
+                )
                 if attempt < MAX_RETRIES:
                     time.sleep(RETRY_DELAY)
         logging.error("All %d price fetch attempts failed", MAX_RETRIES)

@@ -16,6 +16,7 @@ class PriceClient(Protocol):
 class PriceExtractor(Protocol):
     def formatted_price_from_data(self, data: dict | None) -> str: ...
 
+
 _MEDIA_DIR = Path(__file__).parent / "media"
 
 FONT_FILE = _MEDIA_DIR / "UbuntuBoldItalic-Rg86.ttf"
@@ -34,7 +35,13 @@ class PriceTicker:
     all hardware operations to the Display instance.
     """
 
-    def __init__(self, display: Display, price_client: PriceClient, price_extractor: PriceExtractor, refresh_interval: int = DEFAULT_REFRESH_INTERVAL) -> None:
+    def __init__(
+        self,
+        display: Display,
+        price_client: PriceClient,
+        price_extractor: PriceExtractor,
+        refresh_interval: int = DEFAULT_REFRESH_INTERVAL,
+    ) -> None:
         self.display = display
         self.price_client = price_client
         self.price_extractor = price_extractor

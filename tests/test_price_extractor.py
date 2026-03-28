@@ -28,11 +28,15 @@ class TestPriceExtractor(unittest.TestCase):
 
     def test_unknown_currency_returns_na(self):
         extractor = PriceExtractor("XYZ", "X")
-        self.assertEqual(extractor.formatted_price_from_data({"USD": {"last": 50000}}), "N/A")
+        self.assertEqual(
+            extractor.formatted_price_from_data({"USD": {"last": 50000}}), "N/A"
+        )
 
     def test_missing_last_key_returns_na(self):
         extractor = PriceExtractor("USD", "$")
-        self.assertEqual(extractor.formatted_price_from_data({"USD": {"buy": 50000}}), "N/A")
+        self.assertEqual(
+            extractor.formatted_price_from_data({"USD": {"buy": 50000}}), "N/A"
+        )
 
 
 if __name__ == "__main__":
