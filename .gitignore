@@ -10,3 +10,7 @@ venv/
 .vscode/*
 .coverage
 *.log
+
+.claude/settings.local.json
+.env
+.venv/
