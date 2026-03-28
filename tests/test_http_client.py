@@ -62,7 +62,7 @@ class TestHttpClientTimeout(unittest.TestCase):
         ) as mock_post:
             HttpClient().post("http://example.com")
             mock_post.assert_called_once_with(
-                "http://example.com", data=None, timeout=DEFAULT_TIMEOUT
+                "http://example.com", json=None, timeout=DEFAULT_TIMEOUT
             )
 
     def test_put_passes_default_timeout(self):
@@ -71,7 +71,7 @@ class TestHttpClientTimeout(unittest.TestCase):
         ) as mock_put:
             HttpClient().put("http://example.com")
             mock_put.assert_called_once_with(
-                "http://example.com", data=None, timeout=DEFAULT_TIMEOUT
+                "http://example.com", json=None, timeout=DEFAULT_TIMEOUT
             )
 
     def test_delete_passes_default_timeout(self):

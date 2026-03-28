@@ -25,10 +25,10 @@ class Display:
 
     def __init__(self) -> None:
         self._epd = epd2in13_V2.EPD()
-        self._epd.init(self._epd.FULL_UPDATE)
-        self._epd.Clear(0xFF)
         self.width = self._epd.height  # 250 pixels
         self.height = self._epd.width  # 122 pixels
+        self.init()
+        self.clear()
 
     def init(self) -> None:
         self._epd.init(self._epd.FULL_UPDATE)

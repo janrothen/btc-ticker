@@ -18,6 +18,9 @@ class BitcoinPriceClient:
     e.g. {"USD": {"last": 84500.0, ...}, "CHF": {"last": 75000.0, ...}}.
     """
 
+    def __init__(self, http_client: HttpClient | None = None) -> None:
+        self._http = http_client or HttpClient()
+
     def retrieve_data(self) -> dict | None:
         """Fetch price data, retrying up to MAX_RETRIES times on failure.
 
@@ -26,8 +29,14 @@ class BitcoinPriceClient:
         endpoint = config()["bitcoin"]["price"]["service_endpoint"]
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                result = HttpClient().get(endpoint)
-                if result:
+                result = self._http.get(endpoint)
+                if not result:
+                    logging.warning(
+                        "Price fetch attempt %d/%d returned empty response",
+                        attempt,
+                        MAX_RETRIES,
+                    )
+                else:
                     return json.loads(result)
             except (
                 ConnectionError,
@@ -37,7 +46,7 @@ class BitcoinPriceClient:
                 logging.warning(
                     "Price fetch attempt %d/%d failed: %s", attempt, MAX_RETRIES, e
                 )
-                if attempt < MAX_RETRIES:
-                    time.sleep(RETRY_DELAY)
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_DELAY)
         logging.error("All %d price fetch attempts failed", MAX_RETRIES)
         return None

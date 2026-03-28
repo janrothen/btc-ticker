@@ -1,7 +1,6 @@
 import logging
 import os
 import sys
-import traceback
 
 from epaper.config import config
 
@@ -40,8 +39,7 @@ def main() -> None:
             ticker.tick()
             sd_notify("WATCHDOG=1")
     except Exception as ex:
-        logging.error(ex)
-        traceback.print_exc(file=sys.stdout)
+        logging.exception(ex)
         sys.exit(1)
     finally:
         ticker.stop()

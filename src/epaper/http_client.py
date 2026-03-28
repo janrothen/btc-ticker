@@ -1,5 +1,3 @@
-import json
-
 import requests
 
 DEFAULT_TIMEOUT = 10  # seconds
@@ -16,12 +14,10 @@ class HttpClient:
         return self._check(requests.get(url, timeout=self.timeout))
 
     def post(self, url: str, json_data: object | None = None) -> str:
-        data = json.dumps(json_data) if json_data else None
-        return self._check(requests.post(url, data=data, timeout=self.timeout))
+        return self._check(requests.post(url, json=json_data, timeout=self.timeout))
 
     def put(self, url: str, json_data: object | None = None) -> str:
-        data = json.dumps(json_data) if json_data else None
-        return self._check(requests.put(url, data=data, timeout=self.timeout))
+        return self._check(requests.put(url, json=json_data, timeout=self.timeout))
 
     def delete(self, url: str) -> str:
         return self._check(requests.delete(url, timeout=self.timeout))

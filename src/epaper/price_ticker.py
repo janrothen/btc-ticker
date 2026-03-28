@@ -81,8 +81,8 @@ class PriceTicker:
             self.display.show(frame)
             self.display.sleep()
             self._last_refresh = time.monotonic()
-
-        time.sleep(1)
+        else:
+            time.sleep(1)
 
     def stop(self) -> None:
         logging.info("shutting down")
