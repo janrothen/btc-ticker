@@ -74,7 +74,7 @@ Any endpoint that returns this structure works as a drop-in replacement.
 ## Install & run
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[rpi]"
 python -m epaper
@@ -88,7 +88,7 @@ sudo usermod -aG spi,gpio $USER
 ## Development
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 pytest
