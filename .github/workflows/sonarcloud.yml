@@ -25,7 +25,9 @@ jobs:
         run: pip install -e ".[dev]"
 
       - name: Run tests with coverage
-        run: pytest
+        run: |
+          pytest
+          sed -i "s|$(pwd)/||g" coverage.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@eb211723266fe8e83102bac7361f0a05c3ac1d1b  # v3.0.0
