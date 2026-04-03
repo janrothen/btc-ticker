@@ -40,6 +40,12 @@ packages = ["src/epaper"]
 testpaths = ["tests"]
 addopts = "--cov=src/epaper --cov-report=xml"
 
+[tool.coverage.run]
+source = ["src/epaper"]
+
+[tool.coverage.report]
+relative_files = true
+
 [tool.ruff]
 target-version = "py313"
 line-length = 88
