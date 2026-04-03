@@ -38,10 +38,9 @@ packages = ["src/epaper"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src/epaper --cov-report=xml"
+addopts = "--cov=src/epaper --cov-report=xml --cov-config=pyproject.toml"
 
 [tool.coverage.run]
-source = ["src/epaper"]
 relative_files = true
 
 [tool.ruff]
