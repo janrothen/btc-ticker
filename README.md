@@ -1,8 +1,14 @@
 # E-Paper Bitcoin Price Ticker
 
-![Python](https://img.shields.io/badge/python-3.13%2B-blue)
-![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%20%7C%20Linux-lightgrey.svg)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%20%7C%20Linux-lightgrey.svg)
+![Python](https://img.shields.io/badge/python-3.13%2B-blue)
+|
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=alert_status)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=bugs)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=code_smells)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=coverage)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=janrothen_e-paper&metric=security_rating)](https://sonarcloud.io/project/overview?id=janrothen_e-paper)
 
 Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2in13 V2) connected to a Raspberry Pi. On startup it shows a Bitcoin logo, then enters a loop that refreshes the price every 5 minutes. The background alternates randomly between black and white on each refresh.
 
