@@ -27,7 +27,8 @@ jobs:
       - name: Run tests with coverage
         run: |
           pytest
-          sed -i "s|$(pwd)/||g" coverage.xml
+          echo "--- coverage.xml sources ---"
+          head -10 coverage.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@eb211723266fe8e83102bac7361f0a05c3ac1d1b  # v3.0.0
