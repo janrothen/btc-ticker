@@ -5,26 +5,27 @@ build-backend = "hatchling.build"
 [project]
 name = "epaper"
 version = "0.1.0"
+description = "Bitcoin price ticker for Waveshare 2.13\" e-ink displays on Raspberry Pi"
 requires-python = ">=3.13"
 dependencies = [
-    "requests>=2.0.0",
-    "Pillow>=10.0.0",
+    "requests~=2.33",
+    "pillow~=12.2",
 ]
 
 [project.optional-dependencies]
 rpi = [
-    "RPi.GPIO>=0.7.1",
-    "spidev>=3.8",
-    "pigpio>=1.78",
-    "gpiozero>=1.6.2",
-    "numpy>=2.0.0",
+    "RPi.GPIO~=0.7.1",
+    "spidev~=3.8",
+    "pigpio~=1.78",
+    "gpiozero~=2.0",
+    "numpy~=2.4",
     "waveshare-epd @ git+https://github.com/waveshareteam/e-Paper.git@86aa9932f471a50157cf02fafadc2c1b4a965449#subdirectory=RaspberryPi_JetsonNano/python",
 ]
 dev = [
-    "pytest>=8.0.0",
-    "pytest-cov>=5.0.0",
-    "pre-commit>=4.0.0",
-    "ruff>=0.11.2",
+    "pytest~=9.0",
+    "pytest-cov~=7.1",
+    "pre-commit~=4.5",
+    "ruff>=0.15.9",
 ]
 
 [project.scripts]
@@ -38,7 +39,7 @@ packages = ["src/epaper"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=src/epaper --cov-report=xml --cov-config=pyproject.toml"
+addopts = "--cov=src/epaper --cov-report=term-missing --cov-report=xml --cov-config=pyproject.toml"
 
 [tool.coverage.run]
 relative_files = true
