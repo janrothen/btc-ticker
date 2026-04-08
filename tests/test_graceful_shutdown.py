@@ -2,7 +2,7 @@ import signal
 import unittest
 from unittest.mock import patch
 
-from epaper.utils.graceful_shutdown import GracefulShutdown
+from btcticker.utils.graceful_shutdown import GracefulShutdown
 
 
 def _make():

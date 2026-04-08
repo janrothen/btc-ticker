@@ -28,7 +28,7 @@ except ModuleNotFoundError:
 
     _os.path.exists = _patched_exists
     try:
-        from epaper.lib import epd2in13_V2
+        from btcticker.lib import epd2in13_V2
     finally:
         _os.path.exists = _real_exists
 

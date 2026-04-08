@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from epaper.utils.watchdog import sd_notify
+from btcticker.utils.watchdog import sd_notify
 
 
 class TestSdNotify(unittest.TestCase):

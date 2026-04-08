@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from epaper.http_client import DEFAULT_TIMEOUT, HttpClient, HttpError
+from btcticker.http_client import DEFAULT_TIMEOUT, HttpClient, HttpError
 
 
 class TestHttpClientStatusCodes(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestHttpClientStatusCodes(unittest.TestCase):
     def test_2xx_codes_do_not_raise(self):
         for code in (200, 201, 204, 206):
             with patch(
-                "epaper.http_client.requests.get",
+                "btcticker.http_client.requests.get",
                 return_value=self._mock_response(code),
             ):
                 HttpClient().get("http://example.com")  # must not raise
@@ -22,7 +22,7 @@ class TestHttpClientStatusCodes(unittest.TestCase):
     def test_4xx_raises_http_error(self):
         with (
             patch(
-                "epaper.http_client.requests.get",
+                "btcticker.http_client.requests.get",
                 return_value=self._mock_response(404),
             ),
             self.assertRaises(HttpError),
@@ -32,7 +32,7 @@ class TestHttpClientStatusCodes(unittest.TestCase):
     def test_5xx_raises_http_error(self):
         with (
             patch(
-                "epaper.http_client.requests.get",
+                "btcticker.http_client.requests.get",
                 return_value=self._mock_response(500),
             ),
             self.assertRaises(HttpError),
@@ -42,7 +42,7 @@ class TestHttpClientStatusCodes(unittest.TestCase):
     def test_http_error_carries_status_code_and_body(self):
         with (
             patch(
-                "epaper.http_client.requests.get",
+                "btcticker.http_client.requests.get",
                 return_value=self._mock_response(503, "unavailable"),
             ),
             self.assertRaises(HttpError) as ctx,
@@ -61,7 +61,7 @@ class TestHttpClientTimeout(unittest.TestCase):
 
     def test_get_passes_default_timeout(self):
         with patch(
-            "epaper.http_client.requests.get", return_value=self._mock_response()
+            "btcticker.http_client.requests.get", return_value=self._mock_response()
         ) as mock_get:
             HttpClient().get("http://example.com")
             mock_get.assert_called_once_with(
@@ -70,7 +70,7 @@ class TestHttpClientTimeout(unittest.TestCase):
 
     def test_post_passes_default_timeout(self):
         with patch(
-            "epaper.http_client.requests.post", return_value=self._mock_response()
+            "btcticker.http_client.requests.post", return_value=self._mock_response()
         ) as mock_post:
             HttpClient().post("http://example.com")
             mock_post.assert_called_once_with(
@@ -79,7 +79,7 @@ class TestHttpClientTimeout(unittest.TestCase):
 
     def test_put_passes_default_timeout(self):
         with patch(
-            "epaper.http_client.requests.put", return_value=self._mock_response()
+            "btcticker.http_client.requests.put", return_value=self._mock_response()
         ) as mock_put:
             HttpClient().put("http://example.com")
             mock_put.assert_called_once_with(
@@ -88,7 +88,7 @@ class TestHttpClientTimeout(unittest.TestCase):
 
     def test_delete_passes_default_timeout(self):
         with patch(
-            "epaper.http_client.requests.delete", return_value=self._mock_response()
+            "btcticker.http_client.requests.delete", return_value=self._mock_response()
         ) as mock_delete:
             HttpClient().delete("http://example.com")
             mock_delete.assert_called_once_with(
@@ -97,7 +97,7 @@ class TestHttpClientTimeout(unittest.TestCase):
 
     def test_custom_timeout_is_used(self):
         with patch(
-            "epaper.http_client.requests.get", return_value=self._mock_response()
+            "btcticker.http_client.requests.get", return_value=self._mock_response()
         ) as mock_get:
             HttpClient(timeout=30).get("http://example.com")
             mock_get.assert_called_once_with("http://example.com", timeout=30)
@@ -106,7 +106,7 @@ class TestHttpClientTimeout(unittest.TestCase):
         import requests as req
 
         with (
-            patch("epaper.http_client.requests.get", side_effect=req.Timeout),
+            patch("btcticker.http_client.requests.get", side_effect=req.Timeout),
             self.assertRaises(req.Timeout),
         ):
             HttpClient().get("http://example.com")

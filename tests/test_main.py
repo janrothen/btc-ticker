@@ -3,30 +3,30 @@ import types
 import unittest
 from unittest.mock import MagicMock, PropertyMock, call, patch
 
-# Stub hardware drivers before epaper.__main__ is imported.
-# epaper.__main__ has module-level `from epaper.display import Display`, which
+# Stub hardware drivers before btcticker.__main__ is imported.
+# btcticker.__main__ has module-level `from btcticker.display import Display`, which
 # in turn loads the vendored epd2in13_V2 driver that requires Pi hardware.
-sys.modules.setdefault("epaper.lib.epdconfig", MagicMock())
-if "epaper.lib.epd2in13_V2" not in sys.modules:
-    _epd_mod = types.ModuleType("epaper.lib.epd2in13_V2")
+sys.modules.setdefault("btcticker.lib.epdconfig", MagicMock())
+if "btcticker.lib.epd2in13_V2" not in sys.modules:
+    _epd_mod = types.ModuleType("btcticker.lib.epd2in13_V2")
     _epd_mod.EPD = MagicMock()
-    sys.modules["epaper.lib.epd2in13_V2"] = _epd_mod
-sys.modules.pop("epaper.display", None)
-sys.modules.pop("epaper.__main__", None)
+    sys.modules["btcticker.lib.epd2in13_V2"] = _epd_mod
+sys.modules.pop("btcticker.display", None)
+sys.modules.pop("btcticker.__main__", None)
 
 
 def _run_main(mock_ticker, mock_shutdown, mock_sd_notify, extra_config=None):
     cfg = extra_config or {}
     with (
-        patch("epaper.__main__.Display"),
-        patch("epaper.__main__.BitcoinPriceClient"),
-        patch("epaper.__main__.PriceExtractor"),
-        patch("epaper.__main__.PriceTicker", return_value=mock_ticker),
-        patch("epaper.__main__.GracefulShutdown", return_value=mock_shutdown),
-        patch("epaper.__main__.sd_notify", mock_sd_notify),
-        patch("epaper.__main__.config", return_value=cfg),
+        patch("btcticker.__main__.Display"),
+        patch("btcticker.__main__.BitcoinPriceClient"),
+        patch("btcticker.__main__.PriceExtractor"),
+        patch("btcticker.__main__.PriceTicker", return_value=mock_ticker),
+        patch("btcticker.__main__.GracefulShutdown", return_value=mock_shutdown),
+        patch("btcticker.__main__.sd_notify", mock_sd_notify),
+        patch("btcticker.__main__.config", return_value=cfg),
     ):
-        from epaper.__main__ import main
+        from btcticker.__main__ import main
 
         main()
 
@@ -83,15 +83,17 @@ class TestMain(unittest.TestCase):
         mock_extractor_cls = MagicMock()
         type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
         with (
-            patch("epaper.__main__.Display"),
-            patch("epaper.__main__.BitcoinPriceClient"),
-            patch("epaper.__main__.PriceExtractor", mock_extractor_cls),
-            patch("epaper.__main__.PriceTicker", return_value=self.mock_ticker),
-            patch("epaper.__main__.GracefulShutdown", return_value=self.mock_shutdown),
-            patch("epaper.__main__.sd_notify", self.mock_sd_notify),
-            patch("epaper.__main__.config", return_value=cfg),
+            patch("btcticker.__main__.Display"),
+            patch("btcticker.__main__.BitcoinPriceClient"),
+            patch("btcticker.__main__.PriceExtractor", mock_extractor_cls),
+            patch("btcticker.__main__.PriceTicker", return_value=self.mock_ticker),
+            patch(
+                "btcticker.__main__.GracefulShutdown", return_value=self.mock_shutdown
+            ),
+            patch("btcticker.__main__.sd_notify", self.mock_sd_notify),
+            patch("btcticker.__main__.config", return_value=cfg),
         ):
-            from epaper.__main__ import main
+            from btcticker.__main__ import main
 
             main()
         mock_extractor_cls.assert_called_once_with("CHF", "CHF ")

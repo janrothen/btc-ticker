@@ -90,7 +90,7 @@ Any endpoint that returns this structure works as a drop-in replacement.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[rpi]"
-python -m epaper
+python -m btcticker
 ```
 
 If you get permission errors on SPI/GPIO devices, add your user to the required groups (then log out and back in):
@@ -108,7 +108,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-The mock price client (`src/epaper/price/mock.py`) is used automatically during tests so no live API or hardware is required to run the test suite.
+The mock price client (`src/btcticker/price/mock.py`) is used automatically during tests so no live API or hardware is required to run the test suite.
 
 ## Deployment
 

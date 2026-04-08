@@ -10,10 +10,10 @@ _MINIMAL_TOML = b'[bitcoin.price]\nservice_endpoint = "http://example.com"\n'
 
 class TestConfigLoader(unittest.TestCase):
     def _fresh_config_module(self):
-        sys.modules.pop("epaper.config", None)
-        import epaper.config
+        sys.modules.pop("btcticker.config", None)
+        import btcticker.config
 
-        return epaper.config
+        return btcticker.config
 
     def test_loads_from_cwd_when_config_toml_present(self):
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -43,7 +43,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertIn("bitcoin", result)
 
     def tearDown(self) -> None:
-        sys.modules.pop("epaper.config", None)
+        sys.modules.pop("btcticker.config", None)
 
 
 if __name__ == "__main__":

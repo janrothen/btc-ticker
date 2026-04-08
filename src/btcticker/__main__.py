@@ -2,7 +2,7 @@ import logging
 import os
 import sys
 
-from epaper.config import config
+from btcticker.config import config
 
 # GPIOZERO_PIN_FACTORY must be set before Display is imported, because gpiozero
 # reads the env var at import time to select the GPIO backend.
@@ -10,12 +10,12 @@ os.environ.setdefault(
     "GPIOZERO_PIN_FACTORY", config().get("gpiozero", {}).get("pin_factory", "pigpio")
 )
 
-from epaper.display import Display
-from epaper.price.bitcoin_price_client import BitcoinPriceClient
-from epaper.price.price_extractor import PriceExtractor
-from epaper.price_ticker import PriceTicker
-from epaper.utils.graceful_shutdown import GracefulShutdown
-from epaper.utils.watchdog import sd_notify
+from btcticker.display import Display
+from btcticker.price.bitcoin_price_client import BitcoinPriceClient
+from btcticker.price.price_extractor import PriceExtractor
+from btcticker.price_ticker import PriceTicker
+from btcticker.utils.graceful_shutdown import GracefulShutdown
+from btcticker.utils.watchdog import sd_notify
 
 logging.basicConfig(level=logging.INFO)
 

@@ -7,7 +7,7 @@ Wants=network-online.target
 # Adjust User, WorkingDirectory, and ExecStart to match your install location.
 User=pi
 WorkingDirectory=/home/pi/raspberry/btc-ticker
-ExecStart=/home/pi/raspberry/btc-ticker/.venv/bin/python -m epaper
+ExecStart=/home/pi/raspberry/btc-ticker/.venv/bin/python -m btcticker
 Restart=on-failure
 RestartSec=10
 Type=notify

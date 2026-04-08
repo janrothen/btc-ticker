@@ -4,8 +4,8 @@ import time
 
 import requests
 
-from epaper.config import config
-from epaper.http_client import HttpClient, HttpError
+from btcticker.config import config
+from btcticker.http_client import HttpClient, HttpError
 
 MAX_RETRIES = 3
 RETRY_DELAY = 5  # seconds between attempts

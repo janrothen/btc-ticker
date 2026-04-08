@@ -11,12 +11,12 @@ def _stub_epd_module():
     mock_epd_instance.height = 250
     mock_epd_instance.width = 122
 
-    mod = types.ModuleType("epaper.lib.epd2in13_V2")
+    mod = types.ModuleType("btcticker.lib.epd2in13_V2")
     mod.EPD = MagicMock(return_value=mock_epd_instance)
 
-    sys.modules.setdefault("epaper.lib.epdconfig", MagicMock())
-    sys.modules["epaper.lib.epd2in13_V2"] = mod
-    sys.modules.pop("epaper.display", None)
+    sys.modules.setdefault("btcticker.lib.epdconfig", MagicMock())
+    sys.modules["btcticker.lib.epd2in13_V2"] = mod
+    sys.modules.pop("btcticker.display", None)
 
     return mock_epd_instance
 
@@ -24,7 +24,7 @@ def _stub_epd_module():
 class TestDisplay(unittest.TestCase):
     def setUp(self) -> None:
         self.mock_epd = _stub_epd_module()
-        from epaper.display import Display
+        from btcticker.display import Display
 
         self.display = Display()
 

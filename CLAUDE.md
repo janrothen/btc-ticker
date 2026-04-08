@@ -9,8 +9,8 @@ Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2i
 
 ## Structure
 ```
-src/epaper/          # installable package
-  __main__.py        # entry point: python -m epaper
+src/btcticker/          # installable package
+  __main__.py        # entry point: python -m btcticker
   display.py         # hardware abstraction (Display)
   price_ticker.py    # orchestration: price updates and rendering (PriceTicker)
   config.py          # config loader (tomllib + config.toml)

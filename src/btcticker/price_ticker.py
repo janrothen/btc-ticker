@@ -6,7 +6,7 @@ from typing import Protocol
 
 from PIL import Image, ImageDraw, ImageFont
 
-from epaper.display import Display
+from btcticker.display import Display
 
 
 class PriceClient(Protocol):

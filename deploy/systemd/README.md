@@ -10,7 +10,7 @@ Open `btcticker.service` and adjust these three fields to match your setup:
 |---|---|
 | `User` | `pi` |
 | `WorkingDirectory` | `/home/pi/raspberry/btc-ticker` |
-| `ExecStart` | `/home/pi/raspberry/btc-ticker/.venv/bin/python -m epaper` |
+| `ExecStart` | `/home/pi/raspberry/btc-ticker/.venv/bin/python -m btcticker` |
 
 ## Installation
 
