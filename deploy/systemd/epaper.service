@@ -1,13 +1,13 @@
 [Unit]
-Description=E-Paper Bitcoin Price Ticker
+Description=Bitcoin Price Ticker
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 # Adjust User, WorkingDirectory, and ExecStart to match your install location.
 User=pi
-WorkingDirectory=/home/pi/raspberry/e-paper
-ExecStart=/home/pi/raspberry/e-paper/.venv/bin/python -m epaper
+WorkingDirectory=/home/pi/raspberry/btc-ticker
+ExecStart=/home/pi/raspberry/btc-ticker/.venv/bin/python -m epaper
 Restart=on-failure
 RestartSec=10
 Type=notify

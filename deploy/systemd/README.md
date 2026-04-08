@@ -9,8 +9,8 @@ Open `epaper.service` and adjust these three fields to match your setup:
 | Field | Example |
 |---|---|
 | `User` | `pi` |
-| `WorkingDirectory` | `/home/pi/raspberry/e-paper` |
-| `ExecStart` | `/home/pi/raspberry/e-paper/.venv/bin/python -m epaper` |
+| `WorkingDirectory` | `/home/pi/raspberry/btc-ticker` |
+| `ExecStart` | `/home/pi/raspberry/btc-ticker/.venv/bin/python -m epaper` |
 
 ## Installation
 
