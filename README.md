@@ -7,7 +7,7 @@
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=janrothen_btc-ticker&metric=bugs)](https://sonarcloud.io/project/overview?id=janrothen_btc-ticker)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=janrothen_btc-ticker&metric=coverage)](https://sonarcloud.io/project/overview?id=janrothen_btc-ticker)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=janrothen_btc-ticker&metric=security_rating)](https://sonarcloud.io/project/overview?id=janrothen_btc-ticker)
-[![GitGuardian](https://img.shields.io/badge/GitGuardian-monitored-brightgreen?logo=gitguardian&logoColor=white)](https://www.gitguardian.com)
+[![GitGuardian](https://img.shields.io/badge/GitGuardian-monitored-blue?logo=gitguardian&logoColor=white)](https://www.gitguardian.com)
 Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2in13 V2) connected to a Raspberry Pi. On startup it shows a Bitcoin logo, then enters a loop that refreshes the price every 5 minutes. The background alternates randomly between black and white on each refresh.
 
 ![Raspberry Pi 4 with Waveshare e-ink display showing $73.08k](docs/images/assembled.png)
