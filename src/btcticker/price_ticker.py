@@ -2,20 +2,11 @@ import logging
 import random
 import time
 from pathlib import Path
-from typing import Protocol
 
 from PIL import Image, ImageDraw, ImageFont
 
 from btcticker.display import Display
-
-
-class PriceClient(Protocol):
-    def retrieve_data(self) -> dict | None: ...
-
-
-class PriceExtractor(Protocol):
-    def formatted_price_from_data(self, data: dict | None) -> str: ...
-
+from btcticker.price.protocols import PriceFormatter, PriceSource
 
 _MEDIA_DIR = Path(__file__).parent / "media"
 
@@ -38,8 +29,8 @@ class PriceTicker:
     def __init__(
         self,
         display: Display,
-        price_client: PriceClient,
-        price_extractor: PriceExtractor,
+        price_client: PriceSource,
+        price_extractor: PriceFormatter,
         refresh_interval: int = DEFAULT_REFRESH_INTERVAL,
     ) -> None:
         self.display = display
