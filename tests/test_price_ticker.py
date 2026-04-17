@@ -8,14 +8,13 @@ def _make_ticker():
     mock_display.width = 250
     mock_display.height = 122
 
-    with patch("btcticker.price_ticker.ImageFont.truetype", return_value=MagicMock()):
-        from btcticker.price_ticker import PriceTicker
+    from btcticker.price_ticker import PriceTicker
 
-        ticker = PriceTicker(
-            display=mock_display,
-            price_client=MagicMock(),
-            price_extractor=MagicMock(),
-        )
+    ticker = PriceTicker(
+        display=mock_display,
+        price_client=MagicMock(),
+        price_extractor=MagicMock(),
+    )
 
     return ticker, mock_display
 
@@ -67,6 +66,15 @@ class TestPriceTickerStop(unittest.TestCase):
         self.assertFalse(self.ticker._stopped)
         self.ticker.stop()
         self.assertTrue(self.ticker._stopped)
+
+    def test_stop_logs_shutdown_only_once(self):
+        import logging as _logging
+
+        with self.assertLogs("root", level=_logging.INFO) as cm:
+            self.ticker.stop()
+            self.ticker.stop()  # second call must not log again
+        shutdown_logs = [m for m in cm.output if "shutting down" in m]
+        self.assertEqual(len(shutdown_logs), 1)
 
     def test_stop_swallows_display_errors(self):
         self.mock_display.init.side_effect = OSError("SPI error")

@@ -1,6 +1,7 @@
 import logging
 import random
 import time
+from functools import cached_property
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -39,7 +40,10 @@ class PriceTicker:
         self._refresh_interval = refresh_interval
         self._stopped = False
         self._last_refresh = float("-inf")  # guarantees refresh on first tick()
-        self._font = ImageFont.truetype(str(FONT_FILE), FONT_SIZE)
+
+    @cached_property
+    def _font(self) -> ImageFont.FreeTypeFont:
+        return ImageFont.truetype(str(FONT_FILE), FONT_SIZE)
 
     def start(self) -> None:
         """Display the intro image and pause before the price loop begins."""
@@ -76,10 +80,10 @@ class PriceTicker:
             time.sleep(1)
 
     def stop(self) -> None:
-        logging.info("shutting down")
         if self._stopped:
             return
         self._stopped = True
+        logging.info("shutting down")
         try:
             self.display.init()
             self.display.clear()

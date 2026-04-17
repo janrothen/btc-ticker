@@ -15,10 +15,17 @@ sys.modules.pop("btcticker.display", None)
 sys.modules.pop("btcticker.__main__", None)
 
 
-def _run_main(mock_ticker, mock_shutdown, mock_sd_notify, extra_config=None):
+def _run_main(
+    mock_ticker,
+    mock_shutdown,
+    mock_sd_notify,
+    extra_config=None,
+    mock_display_cls=None,
+):
     cfg = extra_config or {}
+    display_cls = mock_display_cls or MagicMock()
     with (
-        patch("btcticker.__main__.Display"),
+        patch("btcticker.__main__.Display", display_cls),
         patch("btcticker.__main__.BitcoinPriceClient"),
         patch("btcticker.__main__.PriceExtractor"),
         patch("btcticker.__main__.PriceTicker", return_value=mock_ticker),
@@ -44,6 +51,18 @@ class TestMain(unittest.TestCase):
     def test_ticker_start_is_called(self):
         self._run([True])
         self.mock_ticker.start.assert_called_once()
+
+    def test_display_opened_before_ticker_start(self):
+        mock_display_cls = MagicMock()
+        mock_display = mock_display_cls.return_value
+        type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
+        _run_main(
+            self.mock_ticker,
+            self.mock_shutdown,
+            self.mock_sd_notify,
+            mock_display_cls=mock_display_cls,
+        )
+        mock_display.open.assert_called_once()
 
     def test_sd_notify_ready(self):
         self._run([True])

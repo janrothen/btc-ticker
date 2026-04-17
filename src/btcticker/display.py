@@ -45,6 +45,9 @@ class Display:
         self._epd = epd2in13_V2.EPD()
         self.width = self._epd.height  # 250 pixels
         self.height = self._epd.width  # 122 pixels
+
+    def open(self) -> None:
+        """Initialize the hardware and clear the screen to a known state."""
         self.init()
         self.clear()
 

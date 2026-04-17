@@ -27,6 +27,7 @@ def main() -> None:
     refresh_interval = cfg.get("refresh_interval", 300)
 
     display = Display()
+    display.open()
     price_client = BitcoinPriceClient()
     price_extractor = PriceExtractor(currency, symbol)
     ticker = PriceTicker(display, price_client, price_extractor, refresh_interval)

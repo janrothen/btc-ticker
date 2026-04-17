@@ -33,13 +33,20 @@ class TestDisplay(unittest.TestCase):
         self.assertEqual(self.display.width, 250)
         self.assertEqual(self.display.height, 122)
 
+    def test_constructor_does_not_touch_hardware(self):
+        self.mock_epd.init.assert_not_called()
+        self.mock_epd.Clear.assert_not_called()
+
+    def test_open_initializes_and_clears(self):
+        self.display.open()
+        self.mock_epd.init.assert_called_once_with("FULL_UPDATE")
+        self.mock_epd.Clear.assert_called_once_with(0xFF)
+
     def test_init_calls_epd_init(self):
-        self.mock_epd.init.reset_mock()
         self.display.init()
         self.mock_epd.init.assert_called_once_with("FULL_UPDATE")
 
     def test_clear_calls_epd_clear(self):
-        self.mock_epd.Clear.reset_mock()
         self.display.clear()
         self.mock_epd.Clear.assert_called_once_with(0xFF)
 
