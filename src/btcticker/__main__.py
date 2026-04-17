@@ -11,6 +11,7 @@ os.environ.setdefault(
 )
 
 from btcticker.display import Display
+from btcticker.frame_renderer import FrameRenderer
 from btcticker.price.bitcoin_price_client import BitcoinPriceClient
 from btcticker.price.price_extractor import PriceExtractor
 from btcticker.price_ticker import PriceTicker
@@ -29,9 +30,12 @@ def main() -> None:
 
     display = Display()
     display.open()
+    renderer = FrameRenderer(display.width, display.height)
     price_client = BitcoinPriceClient(endpoint)
     price_extractor = PriceExtractor(currency, symbol)
-    ticker = PriceTicker(display, price_client, price_extractor, refresh_interval)
+    ticker = PriceTicker(
+        display, renderer, price_client, price_extractor, refresh_interval
+    )
     shutdown = GracefulShutdown()
 
     try:

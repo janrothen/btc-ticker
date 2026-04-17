@@ -3,59 +3,63 @@ from unittest.mock import MagicMock, patch
 
 
 def _make_ticker():
-    """Return a PriceTicker with a mocked Display and dummy client/extractor."""
+    """Return a PriceTicker with mocked collaborators."""
     mock_display = MagicMock()
     mock_display.width = 250
     mock_display.height = 122
+    mock_renderer = MagicMock()
+    mock_client = MagicMock()
+    mock_extractor = MagicMock()
 
     from btcticker.price_ticker import PriceTicker
 
     ticker = PriceTicker(
         display=mock_display,
-        price_client=MagicMock(),
-        price_extractor=MagicMock(),
+        renderer=mock_renderer,
+        price_client=mock_client,
+        price_extractor=mock_extractor,
     )
 
-    return ticker, mock_display
+    return ticker, mock_display, mock_renderer, mock_client, mock_extractor
 
 
 class TestPriceTickerStart(unittest.TestCase):
     def setUp(self) -> None:
-        self.ticker, self.mock_display = _make_ticker()
+        (
+            self.ticker,
+            self.mock_display,
+            self.mock_renderer,
+            _,
+            _,
+        ) = _make_ticker()
 
-    def test_start_shows_image_on_display(self):
-        from btcticker.price_ticker import IMAGE_FILE
-
-        mock_image = MagicMock()
-        mock_image.size = (122, 122)
-        with (
-            patch(
-                "btcticker.price_ticker.Image.open", return_value=mock_image
-            ) as mock_open,
-            patch("btcticker.price_ticker.Image.new", return_value=MagicMock()),
-            patch("btcticker.price_ticker.time.sleep"),
-        ):
+    def test_start_renders_intro_and_shows_on_display(self):
+        intro_frame = MagicMock()
+        self.mock_renderer.render_intro.return_value = intro_frame
+        with patch("btcticker.price_ticker.time.sleep"):
             self.ticker.start()
 
-        mock_open.assert_called_once_with(IMAGE_FILE)
-        self.mock_display.show.assert_called_once()
+        self.mock_renderer.render_intro.assert_called_once_with()
+        self.mock_display.show.assert_called_once_with(intro_frame)
 
     def test_start_pauses_before_price_loop(self):
-        mock_image = MagicMock()
-        mock_image.size = (122, 122)
-        with (
-            patch("btcticker.price_ticker.Image.open", return_value=mock_image),
-            patch("btcticker.price_ticker.Image.new", return_value=MagicMock()),
-            patch("btcticker.price_ticker.time.sleep") as mock_sleep,
-        ):
+        from btcticker.price_ticker import INTRO_PAUSE_SECONDS
+
+        with patch("btcticker.price_ticker.time.sleep") as mock_sleep:
             self.ticker.start()
 
-        mock_sleep.assert_called_once_with(3)
+        mock_sleep.assert_called_once_with(INTRO_PAUSE_SECONDS)
 
 
 class TestPriceTickerStop(unittest.TestCase):
     def setUp(self) -> None:
-        self.ticker, self.mock_display = _make_ticker()
+        (
+            self.ticker,
+            self.mock_display,
+            _,
+            _,
+            _,
+        ) = _make_ticker()
 
     def test_stop_only_shuts_down_display_once(self):
         self.ticker.stop()
@@ -72,21 +76,27 @@ class TestPriceTickerStop(unittest.TestCase):
 
         with self.assertLogs("root", level=_logging.INFO) as cm:
             self.ticker.stop()
-            self.ticker.stop()  # second call must not log again
+            self.ticker.stop()
         shutdown_logs = [m for m in cm.output if "shutting down" in m]
         self.assertEqual(len(shutdown_logs), 1)
 
     def test_stop_swallows_display_errors(self):
         self.mock_display.init.side_effect = OSError("SPI error")
         try:
-            self.ticker.stop()  # must not raise
+            self.ticker.stop()
         except Exception as e:
             self.fail(f"stop() raised {e}")
 
 
 class TestPriceTickerRefreshTiming(unittest.TestCase):
     def setUp(self) -> None:
-        self.ticker, self.mock_display = _make_ticker()
+        (
+            self.ticker,
+            self.mock_display,
+            self.mock_renderer,
+            self.mock_client,
+            self.mock_extractor,
+        ) = _make_ticker()
 
     def _run_tick(self, monotonic_values):
         with (
@@ -94,8 +104,6 @@ class TestPriceTickerRefreshTiming(unittest.TestCase):
                 "btcticker.price_ticker.time.monotonic", side_effect=monotonic_values
             ),
             patch("btcticker.price_ticker.time.sleep"),
-            patch("btcticker.price_ticker.Image.new", return_value=MagicMock()),
-            patch("btcticker.price_ticker.ImageDraw.Draw", return_value=MagicMock()),
         ):
             self.ticker.tick()
 
@@ -124,28 +132,46 @@ class TestPriceTickerRefreshTiming(unittest.TestCase):
         self.assertEqual(self.mock_display.show.call_count, 2)
 
 
-class TestPriceTickerTextCentering(unittest.TestCase):
+class TestPriceTickerRefreshFlow(unittest.TestCase):
     def setUp(self) -> None:
-        self.ticker, _ = _make_ticker()
-        self.mock_draw = MagicMock()
-        self.ticker.price_extractor.formatted_price_from_data.return_value = "$84.99k"
+        (
+            self.ticker,
+            self.mock_display,
+            self.mock_renderer,
+            self.mock_client,
+            self.mock_extractor,
+        ) = _make_ticker()
 
-    def test_price_drawn_at_canvas_center_with_mm_anchor(self):
-        expected_x = self.ticker.display.width // 2  # 125
-        expected_y = self.ticker.display.height // 2  # 61
+    def test_price_pipeline_feeds_renderer_then_display(self):
+        raw = {"USD": {"last": 50000}}
+        self.mock_client.retrieve_data.return_value = raw
+        self.mock_extractor.formatted_price_from_data.return_value = "$50k"
+        rendered_frame = MagicMock()
+        self.mock_renderer.render_price.return_value = rendered_frame
 
         with (
             patch("btcticker.price_ticker.time.monotonic", return_value=9999.0),
             patch("btcticker.price_ticker.time.sleep"),
-            patch("btcticker.price_ticker.Image.new", return_value=MagicMock()),
-            patch("btcticker.price_ticker.ImageDraw.Draw", return_value=self.mock_draw),
         ):
             self.ticker.tick()
 
-        self.mock_draw.text.assert_called_once()
-        args, kwargs = self.mock_draw.text.call_args
-        self.assertEqual(args[0], (expected_x, expected_y))
-        self.assertEqual(kwargs.get("anchor"), "mm")
+        self.mock_extractor.formatted_price_from_data.assert_called_once_with(raw)
+        self.mock_renderer.render_price.assert_called_once_with("$50k")
+        self.mock_display.show.assert_called_once_with(rendered_frame)
+
+    def test_display_hardware_sequence(self):
+        """init → show → sleep on refresh."""
+        self.mock_renderer.render_price.return_value = MagicMock()
+
+        with (
+            patch("btcticker.price_ticker.time.monotonic", return_value=9999.0),
+            patch("btcticker.price_ticker.time.sleep"),
+        ):
+            self.ticker.tick()
+
+        # Verify call ordering on the display mock.
+        call_names = [c[0] for c in self.mock_display.method_calls]
+        self.assertEqual(call_names, ["init", "show", "sleep"])
 
 
 if __name__ == "__main__":
