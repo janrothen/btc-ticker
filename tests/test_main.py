@@ -15,18 +15,25 @@ sys.modules.pop("btcticker.display", None)
 sys.modules.pop("btcticker.__main__", None)
 
 
+_DEFAULT_CONFIG = {
+    "bitcoin": {"price": {"service_endpoint": "https://example.test/ticker"}}
+}
+
+
 def _run_main(
     mock_ticker,
     mock_shutdown,
     mock_sd_notify,
     extra_config=None,
     mock_display_cls=None,
+    mock_price_client_cls=None,
 ):
-    cfg = extra_config or {}
+    cfg = extra_config if extra_config is not None else _DEFAULT_CONFIG
     display_cls = mock_display_cls or MagicMock()
+    price_client_cls = mock_price_client_cls or MagicMock()
     with (
         patch("btcticker.__main__.Display", display_cls),
-        patch("btcticker.__main__.BitcoinPriceClient"),
+        patch("btcticker.__main__.BitcoinPriceClient", price_client_cls),
         patch("btcticker.__main__.PriceExtractor"),
         patch("btcticker.__main__.PriceTicker", return_value=mock_ticker),
         patch("btcticker.__main__.GracefulShutdown", return_value=mock_shutdown),
@@ -98,7 +105,15 @@ class TestMain(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 1)
 
     def test_config_currency_and_symbol_passed_to_price_extractor(self):
-        cfg = {"bitcoin": {"price": {"currency": "CHF", "symbol": "CHF "}}}
+        cfg = {
+            "bitcoin": {
+                "price": {
+                    "currency": "CHF",
+                    "symbol": "CHF ",
+                    "service_endpoint": "https://example.test/ticker",
+                }
+            }
+        }
         mock_extractor_cls = MagicMock()
         type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
         with (
@@ -116,6 +131,19 @@ class TestMain(unittest.TestCase):
 
             main()
         mock_extractor_cls.assert_called_once_with("CHF", "CHF ")
+
+    def test_service_endpoint_passed_to_price_client(self):
+        cfg = {"bitcoin": {"price": {"service_endpoint": "https://my.ticker/api"}}}
+        mock_client_cls = MagicMock()
+        type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
+        _run_main(
+            self.mock_ticker,
+            self.mock_shutdown,
+            self.mock_sd_notify,
+            extra_config=cfg,
+            mock_price_client_cls=mock_client_cls,
+        )
+        mock_client_cls.assert_called_once_with("https://my.ticker/api")
 
 
 if __name__ == "__main__":

@@ -25,10 +25,11 @@ def main() -> None:
     currency = cfg.get("currency", "USD")
     symbol = cfg.get("symbol", "$")
     refresh_interval = cfg.get("refresh_interval", 300)
+    endpoint = cfg["service_endpoint"]
 
     display = Display()
     display.open()
-    price_client = BitcoinPriceClient()
+    price_client = BitcoinPriceClient(endpoint)
     price_extractor = PriceExtractor(currency, symbol)
     ticker = PriceTicker(display, price_client, price_extractor, refresh_interval)
     shutdown = GracefulShutdown()

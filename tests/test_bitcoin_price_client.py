@@ -17,13 +17,16 @@ from btcticker.price.price_extractor import PriceExtractor
 FIXTURE = Path(__file__).parent / "mock_data.json"
 
 
+TEST_ENDPOINT = "https://example.test/ticker"
+
+
 def _make_client(side_effect=None, return_value=None):
     mock_http = MagicMock()
     if side_effect is not None:
         mock_http.get.side_effect = side_effect
     elif return_value is not None:
         mock_http.get.return_value = return_value
-    return BitcoinPriceClient(http_client=mock_http), mock_http
+    return BitcoinPriceClient(TEST_ENDPOINT, http_client=mock_http), mock_http
 
 
 class TestPriceExtractorIntegration(unittest.TestCase):

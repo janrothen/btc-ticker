@@ -4,7 +4,6 @@ import time
 
 import requests
 
-from btcticker.config import config
 from btcticker.http_client import HttpClient, HttpError
 
 MAX_RETRIES = 3
@@ -18,9 +17,9 @@ class BitcoinPriceClient:
     e.g. {"USD": {"last": 84500.0, ...}, "CHF": {"last": 75000.0, ...}}.
     """
 
-    def __init__(self, http_client: HttpClient | None = None) -> None:
+    def __init__(self, endpoint: str, http_client: HttpClient | None = None) -> None:
+        self._endpoint = endpoint
         self._http = http_client or HttpClient()
-        self._endpoint = config()["bitcoin"]["price"]["service_endpoint"]
 
     def retrieve_data(self) -> dict | None:
         """Fetch price data, retrying up to MAX_RETRIES times on failure.
