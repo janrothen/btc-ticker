@@ -27,12 +27,15 @@ def _run_main(
     extra_config=None,
     mock_display_cls=None,
     mock_price_client_cls=None,
+    mock_renderer_cls=None,
 ):
     cfg = extra_config if extra_config is not None else _DEFAULT_CONFIG
     display_cls = mock_display_cls or MagicMock()
     price_client_cls = mock_price_client_cls or MagicMock()
+    renderer_cls = mock_renderer_cls or MagicMock()
     with (
         patch("btcticker.__main__.Display", display_cls),
+        patch("btcticker.__main__.FrameRenderer", renderer_cls),
         patch("btcticker.__main__.BitcoinPriceClient", price_client_cls),
         patch("btcticker.__main__.PriceExtractor"),
         patch("btcticker.__main__.PriceTicker", return_value=mock_ticker),
@@ -118,6 +121,7 @@ class TestMain(unittest.TestCase):
         type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
         with (
             patch("btcticker.__main__.Display"),
+            patch("btcticker.__main__.FrameRenderer"),
             patch("btcticker.__main__.BitcoinPriceClient"),
             patch("btcticker.__main__.PriceExtractor", mock_extractor_cls),
             patch("btcticker.__main__.PriceTicker", return_value=self.mock_ticker),
@@ -131,6 +135,22 @@ class TestMain(unittest.TestCase):
 
             main()
         mock_extractor_cls.assert_called_once_with("CHF", "CHF ")
+
+    def test_renderer_constructed_from_display_dimensions(self):
+        mock_display_cls = MagicMock()
+        mock_display = mock_display_cls.return_value
+        mock_display.width = 250
+        mock_display.height = 122
+        mock_renderer_cls = MagicMock()
+        type(self.mock_shutdown).kill_now = PropertyMock(return_value=True)
+        _run_main(
+            self.mock_ticker,
+            self.mock_shutdown,
+            self.mock_sd_notify,
+            mock_display_cls=mock_display_cls,
+            mock_renderer_cls=mock_renderer_cls,
+        )
+        mock_renderer_cls.assert_called_once_with(250, 122)
 
     def test_service_endpoint_passed_to_price_client(self):
         cfg = {"bitcoin": {"price": {"service_endpoint": "https://my.ticker/api"}}}
