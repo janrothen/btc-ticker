@@ -15,18 +15,17 @@ from btcticker.price.mock import BitcoinPriceClientMock
 from btcticker.price.price_extractor import PriceExtractor
 
 FIXTURE = Path(__file__).parent / "mock_data.json"
-
-
 TEST_ENDPOINT = "https://example.test/ticker"
 
 
-def _make_client(side_effect=None, return_value=None):
+def _make_client(side_effect=None, return_value=None, **kwargs):
     mock_http = MagicMock()
     if side_effect is not None:
-        mock_http.get.side_effect = side_effect
+        mock_http.get_json.side_effect = side_effect
     elif return_value is not None:
-        mock_http.get.return_value = return_value
-    return BitcoinPriceClient(TEST_ENDPOINT, http_client=mock_http), mock_http
+        mock_http.get_json.return_value = return_value
+    client = BitcoinPriceClient(TEST_ENDPOINT, http_client=mock_http, **kwargs)
+    return client, mock_http
 
 
 class TestPriceExtractorIntegration(unittest.TestCase):
@@ -69,39 +68,29 @@ class TestBitcoinPriceClientErrorHandling(unittest.TestCase):
         )
 
     def test_malformed_json_returns_none(self):
-        client, _ = _make_client(return_value="not valid json {")
-        with patch("btcticker.price.bitcoin_price_client.time.sleep"):
-            self.assertIsNone(client.retrieve_data())
-
-    def test_empty_response_returns_none(self):
-        client, _ = _make_client(return_value="")
-        with patch("btcticker.price.bitcoin_price_client.time.sleep"):
-            self.assertIsNone(client.retrieve_data())
+        self.assertIsNone(
+            self._run_with_error(json.JSONDecodeError("bad", "not valid {", 0))
+        )
 
 
 class TestBitcoinPriceClientRetry(unittest.TestCase):
     def test_succeeds_on_first_attempt_without_retrying(self):
-        good_response = json.dumps({"USD": {"last": 50000}})
-        client, mock_http = _make_client(return_value=good_response)
+        client, _ = _make_client(return_value={"USD": {"last": 50000}})
         with patch("btcticker.price.bitcoin_price_client.time.sleep") as mock_sleep:
             result = client.retrieve_data()
 
-        self.assertIsNotNone(result)
+        self.assertEqual(result, {"USD": {"last": 50000}})
         mock_sleep.assert_not_called()
 
     def test_retries_on_failure_and_returns_data_on_success(self):
-        good_response = json.dumps({"USD": {"last": 50000}})
-        client, mock_http = _make_client(
-            side_effect=[
-                HttpError(503, "fail"),
-                HttpError(503, "fail"),
-                good_response,
-            ]
+        good = {"USD": {"last": 50000}}
+        client, _ = _make_client(
+            side_effect=[HttpError(503, "fail"), HttpError(503, "fail"), good]
         )
         with patch("btcticker.price.bitcoin_price_client.time.sleep") as mock_sleep:
             result = client.retrieve_data()
 
-        self.assertIsNotNone(result)
+        self.assertEqual(result, good)
         self.assertEqual(mock_sleep.call_count, 2)
         mock_sleep.assert_called_with(RETRY_DELAY)
 
@@ -111,7 +100,7 @@ class TestBitcoinPriceClientRetry(unittest.TestCase):
             result = client.retrieve_data()
 
         self.assertIsNone(result)
-        self.assertEqual(mock_http.get.call_count, MAX_RETRIES)
+        self.assertEqual(mock_http.get_json.call_count, MAX_RETRIES)
         self.assertEqual(mock_sleep.call_count, MAX_RETRIES - 1)
 
     def test_no_sleep_after_last_failed_attempt(self):
@@ -120,6 +109,23 @@ class TestBitcoinPriceClientRetry(unittest.TestCase):
             client.retrieve_data()
 
         self.assertEqual(mock_sleep.call_count, MAX_RETRIES - 1)
+
+    def test_injected_max_retries_overrides_default(self):
+        client, mock_http = _make_client(
+            side_effect=HttpError(503, "fail"), max_retries=5
+        )
+        with patch("btcticker.price.bitcoin_price_client.time.sleep"):
+            client.retrieve_data()
+        self.assertEqual(mock_http.get_json.call_count, 5)
+
+    def test_injected_retry_delay_overrides_default(self):
+        client, _ = _make_client(
+            side_effect=[HttpError(503, "fail"), {"USD": {"last": 1}}],
+            retry_delay=42,
+        )
+        with patch("btcticker.price.bitcoin_price_client.time.sleep") as mock_sleep:
+            client.retrieve_data()
+        mock_sleep.assert_called_once_with(42)
 
 
 if __name__ == "__main__":

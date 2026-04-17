@@ -17,34 +17,38 @@ class BitcoinPriceClient:
     e.g. {"USD": {"last": 84500.0, ...}, "CHF": {"last": 75000.0, ...}}.
     """
 
-    def __init__(self, endpoint: str, http_client: HttpClient | None = None) -> None:
+    def __init__(
+        self,
+        endpoint: str,
+        http_client: HttpClient | None = None,
+        max_retries: int = MAX_RETRIES,
+        retry_delay: int = RETRY_DELAY,
+    ) -> None:
         self._endpoint = endpoint
         self._http = http_client or HttpClient()
+        self._max_retries = max_retries
+        self._retry_delay = retry_delay
 
     def retrieve_data(self) -> dict | None:
-        """Fetch price data, retrying up to MAX_RETRIES times on failure.
+        """Fetch price data, retrying up to max_retries times on failure.
 
         Returns the parsed JSON dict on success, or None if all attempts fail.
         """
-        for attempt in range(1, MAX_RETRIES + 1):
+        for attempt in range(1, self._max_retries + 1):
             try:
-                result = self._http.get(self._endpoint)
-                if result:
-                    return json.loads(result)
-                logging.warning(
-                    "Price fetch attempt %d/%d returned empty response",
-                    attempt,
-                    MAX_RETRIES,
-                )
+                return self._http.get_json(self._endpoint)
             except (
                 HttpError,
                 requests.RequestException,
                 json.JSONDecodeError,
             ) as e:
                 logging.warning(
-                    "Price fetch attempt %d/%d failed: %s", attempt, MAX_RETRIES, e
+                    "Price fetch attempt %d/%d failed: %s",
+                    attempt,
+                    self._max_retries,
+                    e,
                 )
-            if attempt < MAX_RETRIES:
-                time.sleep(RETRY_DELAY)
-        logging.error("All %d price fetch attempts failed", MAX_RETRIES)
+            if attempt < self._max_retries:
+                time.sleep(self._retry_delay)
+        logging.error("All %d price fetch attempts failed", self._max_retries)
         return None

@@ -1,3 +1,4 @@
+import json
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -50,6 +51,57 @@ class TestHttpClientStatusCodes(unittest.TestCase):
             HttpClient().get("http://example.com")
         self.assertEqual(ctx.exception.status_code, 503)
         self.assertEqual(ctx.exception.body, "unavailable")
+
+    def test_http_error_message_does_not_start_with_newline(self):
+        error = HttpError(500, "boom")
+        self.assertFalse(str(error).startswith("\n"))
+        self.assertIn("500", str(error))
+        self.assertIn("boom", str(error))
+
+
+class TestHttpClientGetJson(unittest.TestCase):
+    def _mock_response(self, status_code=200, text="{}"):
+        mock = MagicMock()
+        mock.status_code = status_code
+        mock.text = text
+        return mock
+
+    def test_parses_valid_json_body(self):
+        with patch(
+            "btcticker.http_client.requests.get",
+            return_value=self._mock_response(200, '{"a": 1}'),
+        ):
+            self.assertEqual(HttpClient().get_json("http://example.com"), {"a": 1})
+
+    def test_raises_json_decode_error_on_malformed_body(self):
+        with (
+            patch(
+                "btcticker.http_client.requests.get",
+                return_value=self._mock_response(200, "not json {"),
+            ),
+            self.assertRaises(json.JSONDecodeError),
+        ):
+            HttpClient().get_json("http://example.com")
+
+    def test_raises_json_decode_error_on_empty_body(self):
+        with (
+            patch(
+                "btcticker.http_client.requests.get",
+                return_value=self._mock_response(200, ""),
+            ),
+            self.assertRaises(json.JSONDecodeError),
+        ):
+            HttpClient().get_json("http://example.com")
+
+    def test_raises_http_error_on_non_2xx(self):
+        with (
+            patch(
+                "btcticker.http_client.requests.get",
+                return_value=self._mock_response(500, "boom"),
+            ),
+            self.assertRaises(HttpError),
+        ):
+            HttpClient().get_json("http://example.com")
 
 
 class TestHttpClientTimeout(unittest.TestCase):
