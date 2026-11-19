@@ -98,6 +98,8 @@ pip install -e ".[rpi]"
 python -m btcticker
 ```
 
+The default `pin_factory = "pigpio"` talks to the `pigpiod` daemon. `pigpiod` accepts unauthenticated GPIO commands over TCP port 8888 and listens on all interfaces unless started with `-l`. Make sure it only listens on localhost (for example `ExecStart=/usr/bin/pigpiod -l` in its systemd unit), or switch `pin_factory` in `config.toml` to `"rpigpio"` or `"native"`.
+
 If you get permission errors on SPI/GPIO devices, add your user to the required groups (then log out and back in):
 
 ```bash
