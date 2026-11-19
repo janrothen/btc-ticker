@@ -48,7 +48,7 @@
     <li><strong>Raspberry Pi</strong> (any model with a 40-pin GPIO header; this guide uses a Pi 4)</li>
     <li><strong>Waveshare 2.13" e-ink display V2</strong> (<code>epd2in13</code>) with 8-pin HAT connector or loose wire harness — <a href="https://www.waveshare.com/2.13inch-e-paper-hat.htm" target="_blank" rel="noopener">$14.99 on waveshare.com</a></li>
     <li><strong>Jumper wires</strong> (if your display comes with a loose harness rather than a HAT)</li>
-    <li><strong>MicroSD card</strong> with Raspberry Pi OS (Debian Bookworm/Trixie) installed</li>
+    <li><strong>MicroSD card</strong> with Raspberry Pi OS based on Debian Trixie (Python 3.13 or newer) installed</li>
     <li><strong>Internet connection</strong> on the Pi to fetch prices</li>
   </ul>
 
@@ -109,32 +109,32 @@
   <p><em>Tip: after connecting, most pins cluster between physical pins 17–24, with the RST wire reaching
     back to pin 11. Double-check that pin before powering on.</em></p>
 
-  <h2>3. Install the btc-ticker package</h2>
-  <p>On your Raspberry Pi, clone the repository and install the package into a virtual environment:</p>
+  <h2>3. Install btc-ticker</h2>
+  <p>On your Raspberry Pi, as the user the ticker should run as, clone the repository and run the installer:</p>
   <pre>
 git clone https://github.com/janrothen/btc-ticker
 cd btc-ticker
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[rpi]"</pre>
+./deploy/install.sh</pre>
+  <p>The installer sets up everything in one go: the system packages, SPI, the <code>gpio</code> and
+    <code>spi</code> groups, a Python virtual environment with the display drivers, and a systemd service
+    that starts the ticker on every boot. It talks to the GPIO pins through gpiozero's lgpio backend, so
+    no GPIO daemon is needed. It is safe to run again; <code>./deploy/install.sh --help</code> lists the options.</p>
+  <p>If the installer has just enabled SPI, it asks you to reboot. Run <code>sudo reboot</code>, then run
+    <code>./deploy/install.sh</code> once more to start the service.</p>
 
-  <h2>4. Run it</h2>
-  <p>With the virtual environment active, start the ticker:</p>
-  <pre>python3 -m btcticker</pre>
-  <p>The display will show the Bitcoin logo on startup, then begin refreshing the price every 5 minutes.
-    Press <kbd>Ctrl+C</kbd> to stop.</p>
-
-  <h2>5. Run as a systemd service (auto-start on boot)</h2>
-  <p>A ready-made service unit is included in the repository. Install it so the ticker starts automatically
-    whenever the Pi boots:</p>
+  <h2>4. Check that it's running</h2>
+  <p>The display shows the Bitcoin logo on startup, then refreshes the price every 5 minutes. Check the
+    service and follow its log:</p>
   <pre>
-sudo cp deploy/systemd/btcticker.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable btcticker
-sudo systemctl start btcticker</pre>
-  <p>Check that it is running:</p>
-  <pre>sudo systemctl status btcticker</pre>
-  <p>Full installation instructions are in
+systemctl status btcticker
+journalctl -u btcticker -f</pre>
+  <p>To stop the ticker and disable auto-start:</p>
+  <pre>sudo systemctl disable --now btcticker</pre>
+
+  <h2>5. Upgrade</h2>
+  <p>To update to the latest version, pull the changes and rerun the installer:</p>
+  <pre>git pull &amp;&amp; ./deploy/install.sh</pre>
+  <p>Manual installation steps, migrating from older pigpio-based installs and rollback are described in
     <a href="https://github.com/janrothen/btc-ticker/blob/main/deploy/systemd/README.md"><code>deploy/systemd/README.md</code></a>.</p>
 
   <footer>
