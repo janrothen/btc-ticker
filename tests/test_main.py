@@ -174,14 +174,20 @@ class TestMain(unittest.TestCase):
 
 class TestPinFactoryDefault(unittest.TestCase):
     def _import_main_with(self, cfg, env):
-        with (
-            patch.dict(os.environ, env, clear=True),
-            patch("btcticker.config.config", return_value=cfg),
-        ):
-            import btcticker.__main__ as main_mod
+        import btcticker.__main__ as main_mod
 
-            importlib.reload(main_mod)
-            return os.environ.get("GPIOZERO_PIN_FACTORY")
+        try:
+            with (
+                patch.dict(os.environ, env, clear=True),
+                patch("btcticker.config.config", return_value=cfg),
+            ):
+                importlib.reload(main_mod)
+                return os.environ.get("GPIOZERO_PIN_FACTORY")
+        finally:
+            # Reload again with the real config so the patched `config` does
+            # not stay bound in the module for later tests.
+            with patch.dict(os.environ):
+                importlib.reload(main_mod)
 
     def test_defaults_to_lgpio_without_gpiozero_table(self):
         self.assertEqual(self._import_main_with(_DEFAULT_CONFIG, {}), "lgpio")

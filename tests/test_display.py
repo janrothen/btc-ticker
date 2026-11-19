@@ -77,6 +77,23 @@ class TestMissingDriver(unittest.TestCase):
             import btcticker.display  # noqa: F401
         self.assertIn("./deploy/install.sh", str(ctx.exception))
 
+    def test_missing_driver_dependency_is_not_masked(self):
+        sys.modules.pop("btcticker.display", None)
+        pkg = types.ModuleType("waveshare_epd")
+
+        def _missing_dep(name):
+            raise ModuleNotFoundError("No module named 'lgpio'", name="lgpio")
+
+        pkg.__getattr__ = _missing_dep
+        with (
+            patch.dict(sys.modules, {"waveshare_epd": pkg}),
+            self.assertRaises(ModuleNotFoundError) as ctx,
+        ):
+            sys.modules.pop("waveshare_epd.epd2in13_V2", None)
+            import btcticker.display  # noqa: F401
+        self.assertEqual(ctx.exception.name, "lgpio")
+        self.assertNotIn("./deploy/install.sh", str(ctx.exception))
+
 
 if __name__ == "__main__":
     unittest.main()

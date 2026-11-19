@@ -127,10 +127,10 @@ Run as a systemd service for auto-start on boot and auto-restart on failure.
 | Symptom | Likely cause |
 |---|---|
 | `ModuleNotFoundError` for `waveshare_epd` or `lgpio` | Raspberry Pi extras not installed — run `./deploy/install.sh` |
-| Installer fails building `lgpio` (`Python.h`, `swig` or `lgpio.h` not found) | Missing build dependencies — run `sudo apt install gcc python3-dev swig liblgpio-dev`, then rerun `./deploy/install.sh` |
+| Installer fails building `lgpio` (compiler or `Python.h` not found) | Missing build dependencies — run `sudo apt install gcc libc6-dev python3-dev`, then rerun `./deploy/install.sh` |
 | `PermissionError` on `/dev/spidev` or `/dev/gpiomem` | User not in `spi`/`gpio` groups — run `sudo usermod -aG spi,gpio $USER` and re-login |
 | Display stays blank after start | SPI not enabled — run `sudo raspi-config` → Interface Options → SPI → Enable |
-| Display blank right after the installer enabled SPI | SPI only takes effect after a reboot — run `sudo reboot` |
+| Display blank right after the installer enabled SPI | SPI only takes effect after a reboot — run `sudo reboot`, then rerun `./deploy/install.sh` to start the service and finish the pigpio cleanup |
 | Price shows as `$0` or `N/A` | API unreachable — check network and `service_endpoint` in `config.toml` |
 | Service fails to start with `sd_notify` errors | `Type=notify` in the unit file requires systemd watchdog support; rerun `./deploy/install.sh` to reinstall the unit |
 | Service fails after migrating from pigpio | Check `journalctl -u btcticker -n 50`; to go back, follow [Rollback](deploy/systemd/README.md#rollback) |
