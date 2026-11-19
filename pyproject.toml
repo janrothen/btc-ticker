@@ -20,11 +20,9 @@ dependencies = [
 
 [project.optional-dependencies]
 rpi = [
-    "RPi.GPIO~=0.7.1",
     "spidev~=3.8",
-    "pigpio~=1.78",
     "gpiozero~=2.0",
-    "numpy~=2.4",
+    "lgpio~=0.2.2",  # gpiozero backend; built from sdist on 64-bit Pi OS, see deploy/install.sh
     "waveshare-epd @ git+https://github.com/waveshareteam/e-Paper.git@86aa9932f471a50157cf02fafadc2c1b4a965449#subdirectory=RaspberryPi_JetsonNano/python",
 ]
 dev = [
@@ -49,12 +47,10 @@ addopts = "--cov=src/btcticker --cov-report=term-missing --cov-report=xml --cov-
 
 [tool.coverage.run]
 relative_files = true
-omit = ["src/btcticker/lib/*"]  # vendored Waveshare drivers, excluded like in ruff
 
 [tool.ruff]
 target-version = "py313"
 line-length = 88
-exclude = ["src/btcticker/lib"]
 
 [tool.ruff.lint]
 select = [

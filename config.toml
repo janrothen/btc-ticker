@@ -5,7 +5,8 @@ symbol = "$"              # symbol shown on the display (e.g. "CHF ", "€")
 refresh_interval = 300    # seconds between price refreshes
 
 [gpiozero]
-# GPIO backend used by gpiozero to drive the SPI/GPIO pins.
-# "pigpio" is recommended for Raspberry Pi (requires the pigpiod daemon).
-# Other valid values: "rpigpio", "native". See gpiozero docs for details.
-pin_factory = "pigpio"
+# GPIO backend used by gpiozero to drive the display's control pins.
+# "lgpio" talks to /dev/gpiochip* directly and needs no daemon.
+# "pigpio" (requires the pigpiod daemon) and "rpigpio" remain possible, but
+# their libraries are not installed by default. See the gpiozero docs.
+pin_factory = "lgpio"

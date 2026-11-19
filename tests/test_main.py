@@ -1,3 +1,5 @@
+import importlib
+import os
 import sys
 import types
 import unittest
@@ -166,6 +168,29 @@ class TestMain(unittest.TestCase):
             mock_price_client_cls=mock_client_cls,
         )
         mock_client_cls.assert_called_once_with("https://my.ticker/api")
+
+
+class TestPinFactoryDefault(unittest.TestCase):
+    def _import_main_with(self, cfg, env):
+        with (
+            patch.dict(os.environ, env, clear=True),
+            patch("btcticker.config.config", return_value=cfg),
+        ):
+            import btcticker.__main__ as main_mod
+
+            importlib.reload(main_mod)
+            return os.environ.get("GPIOZERO_PIN_FACTORY")
+
+    def test_defaults_to_lgpio_without_gpiozero_table(self):
+        self.assertEqual(self._import_main_with(_DEFAULT_CONFIG, {}), "lgpio")
+
+    def test_uses_configured_pin_factory(self):
+        cfg = {**_DEFAULT_CONFIG, "gpiozero": {"pin_factory": "rpigpio"}}
+        self.assertEqual(self._import_main_with(cfg, {}), "rpigpio")
+
+    def test_existing_env_var_wins(self):
+        env = {"GPIOZERO_PIN_FACTORY": "mock"}
+        self.assertEqual(self._import_main_with(_DEFAULT_CONFIG, env), "mock")
 
 
 if __name__ == "__main__":
