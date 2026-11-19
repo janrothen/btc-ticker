@@ -1,0 +1,23 @@
+# Template rendered by deploy/install.sh: @USER@ and @APP_DIR@ are replaced
+# with the installing user and the repository path.
+[Unit]
+Description=Bitcoin Price Ticker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=@USER@
+WorkingDirectory=@APP_DIR@
+ExecStart=@APP_DIR@/.venv/bin/btcticker
+Restart=on-failure
+RestartSec=10
+Type=notify
+WatchdogSec=60
+NotifyAccess=main
+# lgpio writes notification FIFOs (.lgd-nfy*) into its working directory;
+# LG_WD points it at a runtime directory to keep them out of the repo checkout.
+RuntimeDirectory=btcticker
+Environment=LG_WD=/run/btcticker
+
+[Install]
+WantedBy=multi-user.target
