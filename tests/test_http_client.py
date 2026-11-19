@@ -58,6 +58,13 @@ class TestHttpClientStatusCodes(unittest.TestCase):
         self.assertIn("500", str(error))
         self.assertIn("boom", str(error))
 
+    def test_http_error_message_truncates_and_escapes_body(self):
+        body = "oops\nFAKE LOG LINE" + "x" * 1000
+        error = HttpError(502, body)
+        self.assertLess(len(str(error)), 300)
+        self.assertNotIn("\n", str(error))
+        self.assertEqual(error.body, body)
+
 
 class TestHttpClientGetJson(unittest.TestCase):
     def _mock_response(self, status_code=200, text="{}"):
