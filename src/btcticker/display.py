@@ -1,55 +1,12 @@
-import os
-import sys
-from pathlib import Path
-
 from PIL import Image
 
-_PKG_DIR = Path(__file__).parent
-_LIB_DIR = _PKG_DIR / "lib"
-
-
-def _load_epd_driver():
-    """Import the Waveshare epd2in13_V2 driver.
-
-    Prefers the `waveshare_epd` pip package when available. Falls back to
-    the vendored copy under `lib/`, which requires two workarounds:
-
-    1. The vendored `epd2in13_V2.py` imports `epdconfig` as a bare sibling,
-       so `lib/` must be on sys.path for that import to resolve.
-    2. On Linux 6.6+ (Debian Trixie) the BCM gpiomem driver was renamed
-       from `gpiomem-bcm2835` to `rpi-gpiomem`. The vendored `epdconfig.py`
-       uses the old name for platform detection and would otherwise fall
-       through to a JetsonNano code path. We patch `os.path.exists` for
-       the duration of the fallback import to redirect the stale lookup,
-       and restore it immediately afterwards.
-    """
-    try:
-        from waveshare_epd import epd2in13_V2
-
-        return epd2in13_V2
-    except ModuleNotFoundError:
-        pass
-
-    if _LIB_DIR.exists():
-        sys.path.insert(0, str(_LIB_DIR))
-
-    real_exists = os.path.exists
-
-    def patched_exists(path: str) -> bool:
-        if path == "/sys/bus/platform/drivers/gpiomem-bcm2835":
-            return real_exists("/sys/bus/platform/drivers/rpi-gpiomem")
-        return real_exists(path)
-
-    os.path.exists = patched_exists
-    try:
-        from btcticker.lib import epd2in13_V2
-
-        return epd2in13_V2
-    finally:
-        os.path.exists = real_exists
-
-
-_epd_driver = _load_epd_driver()
+try:
+    from waveshare_epd import epd2in13_V2 as _epd_driver
+except ModuleNotFoundError as e:
+    raise ModuleNotFoundError(
+        "waveshare_epd is not installed; run ./deploy/install.sh "
+        '(or pip install -e ".[rpi]") on the Raspberry Pi'
+    ) from e
 
 
 class Display:

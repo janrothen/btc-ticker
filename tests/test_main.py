@@ -7,12 +7,14 @@ from unittest.mock import MagicMock, PropertyMock, call, patch
 
 # Stub hardware drivers before btcticker.__main__ is imported.
 # btcticker.__main__ has module-level `from btcticker.display import Display`, which
-# in turn loads the vendored epd2in13_V2 driver that requires Pi hardware.
-sys.modules.setdefault("btcticker.lib.epdconfig", MagicMock())
-if "btcticker.lib.epd2in13_V2" not in sys.modules:
-    _epd_mod = types.ModuleType("btcticker.lib.epd2in13_V2")
+# in turn imports the waveshare_epd driver that requires Pi hardware.
+if "waveshare_epd.epd2in13_V2" not in sys.modules:
+    _epd_pkg = types.ModuleType("waveshare_epd")
+    _epd_mod = types.ModuleType("waveshare_epd.epd2in13_V2")
     _epd_mod.EPD = MagicMock()
-    sys.modules["btcticker.lib.epd2in13_V2"] = _epd_mod
+    _epd_pkg.epd2in13_V2 = _epd_mod
+    sys.modules["waveshare_epd"] = _epd_pkg
+    sys.modules["waveshare_epd.epd2in13_V2"] = _epd_mod
 sys.modules.pop("btcticker.display", None)
 sys.modules.pop("btcticker.__main__", None)
 
