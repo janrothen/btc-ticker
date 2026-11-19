@@ -9,7 +9,7 @@ description = "Bitcoin price ticker for Waveshare 2.13\" e-ink displays on Raspb
 requires-python = ">=3.13"
 dependencies = [
     "requests~=2.33",
-    "pillow>=12.3,<13",  # 12.3.0 fixes GHSA-8v84-f9pq-wr9x, GHSA-pg7v-jwj7-p798 et al.
+    "pillow~=13.0",  # 13.0.0 fixes all advisories known for 12.x (e.g. GHSA-78g4-xqwv-q3g8)
     # Security floors for transitive dependencies of requests. There is no
     # lockfile, so without these an existing venv keeps vulnerable versions
     # on `pip install -e .` because the old ones still satisfy requests.
