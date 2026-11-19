@@ -4,6 +4,15 @@ _MILLION = 1_000_000
 _THOUSAND = 1_000
 
 
+def _is_valid_price(value: object) -> bool:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        return False
+    try:
+        return math.isfinite(value) and value >= 0
+    except OverflowError:  # JSON integer too large to represent as a float
+        return False
+
+
 class PriceExtractor:
     def __init__(self, currency: str, symbol: str) -> None:
         self.currency = currency
@@ -16,7 +25,10 @@ class PriceExtractor:
         if not currency_data:
             return "N/A"
         price = currency_data.get("last")
-        if price is None:
+        if not _is_valid_price(price):
+            # The payload comes from the network: a string, bool, NaN, inf or
+            # negative value would otherwise crash math.floor() and put the
+            # service into a restart loop.
             return "N/A"
         return self.format_price(price)
 
