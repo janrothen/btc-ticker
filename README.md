@@ -24,7 +24,7 @@ The guide [How to connect a Waveshare E-Ink display to a Raspberry Pi](https://j
 **Software**
 - Python 3.13+
 - pip dependencies: `requests`, `Pillow` (see `pyproject.toml`)
-- Raspberry Pi extras: `RPi.GPIO`, `spidev`, `pigpio`, `gpiozero`, `numpy`, `waveshare-epd` (installed via `pip install -e ".[rpi]"`)
+- Raspberry Pi extras: `gpiozero`, `lgpio`, `spidev`, `waveshare-epd` (installed by `deploy/install.sh`)
 
 ## Architecture
 
@@ -91,20 +91,19 @@ Any endpoint that returns this structure works as a drop-in replacement.
 
 ## Install & run
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[rpi]"
-python -m btcticker
-```
-
-The default `pin_factory = "pigpio"` talks to the `pigpiod` daemon. `pigpiod` accepts unauthenticated GPIO commands over TCP port 8888 and listens on all interfaces unless started with `-l`. Make sure it only listens on localhost (for example `ExecStart=/usr/bin/pigpiod -l` in its systemd unit), or switch `pin_factory` in `config.toml` to `"rpigpio"` or `"native"`.
-
-If you get permission errors on SPI/GPIO devices, add your user to the required groups (then log out and back in):
+On the Raspberry Pi, as the user the service should run as:
 
 ```bash
-sudo usermod -aG spi,gpio $USER
+git clone https://github.com/janrothen/btc-ticker.git
+cd btc-ticker
+./deploy/install.sh
 ```
+
+The installer sets up system packages, SPI, the `gpio`/`spi` groups, the Python venv and the `btcticker` systemd service, and is safe to run again. Run `./deploy/install.sh --help` for options.
+
+**Upgrade:** `git pull && ./deploy/install.sh`
+
+btc-ticker uses gpiozero's lgpio backend; no GPIO daemon is required.
 
 ## Development
 
@@ -121,18 +120,21 @@ The mock price client (`src/btcticker/price/mock.py`) is used automatically duri
 
 Run as a systemd service for auto-start on boot and auto-restart on failure.
 
-See [`deploy/systemd/README.md`](deploy/systemd/README.md) for installation instructions.
+`./deploy/install.sh` installs and enables the service. See [`deploy/systemd/README.md`](deploy/systemd/README.md) for the manual steps, migrating from pigpio and rollback.
 
 ## Troubleshooting
 
 | Symptom | Likely cause |
 |---|---|
-| `ModuleNotFoundError: No module named 'RPi'` | RPi extras not installed — run `pip install -e ".[rpi]"` |
+| `ModuleNotFoundError` for `waveshare_epd` or `lgpio` | Raspberry Pi extras not installed — run `./deploy/install.sh` |
+| Installer fails building `lgpio` (`Python.h`, `swig` or `lgpio.h` not found) | Missing build dependencies — run `sudo apt install gcc python3-dev swig liblgpio-dev`, then rerun `./deploy/install.sh` |
 | `PermissionError` on `/dev/spidev` or `/dev/gpiomem` | User not in `spi`/`gpio` groups — run `sudo usermod -aG spi,gpio $USER` and re-login |
 | Display stays blank after start | SPI not enabled — run `sudo raspi-config` → Interface Options → SPI → Enable |
+| Display blank right after the installer enabled SPI | SPI only takes effect after a reboot — run `sudo reboot` |
 | Price shows as `$0` or `N/A` | API unreachable — check network and `service_endpoint` in `config.toml` |
-| Service fails to start with `sd_notify` errors | `Type=notify` in the unit file requires systemd watchdog support; verify the unit matches `deploy/systemd/btcticker.service` |
-| `waveshare_epd` import fails | Package installed from wrong commit — reinstall with `pip install -e ".[rpi]"` |
+| Service fails to start with `sd_notify` errors | `Type=notify` in the unit file requires systemd watchdog support; rerun `./deploy/install.sh` to reinstall the unit |
+| Service fails after migrating from pigpio | Check `journalctl -u btcticker -n 50`; to go back, follow [Rollback](deploy/systemd/README.md#rollback) |
+| `waveshare_epd` import fails | Package installed from wrong commit — rerun `./deploy/install.sh` |
 
 ## Contributing
 

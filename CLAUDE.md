@@ -11,7 +11,7 @@ Displays the current Bitcoin/USD price on a Waveshare 2.13" e-ink display (epd2i
 ```
 src/btcticker/          # installable package
   __main__.py        # entry point: python -m btcticker
-  display.py         # hardware abstraction (Display)
+  display.py         # hardware abstraction (Display) over the waveshare_epd pip driver
   price_ticker.py    # orchestration: price updates and rendering (PriceTicker)
   config.py          # config loader (tomllib + config.toml)
   http_client.py     # HTTP wrapper
@@ -22,20 +22,16 @@ src/btcticker/          # installable package
   utils/
     graceful_shutdown.py
     watchdog.py      # systemd sd_notify integration
-  lib/               # Waveshare display drivers (fallback when pip package unavailable)
   media/             # fonts and images
 tests/
 deploy/
+  install.sh         # idempotent install/upgrade script (run on the Pi)
   systemd/
-    btcticker.service   # systemd unit for auto-start on boot
-    README.md        # installation instructions
+    btcticker.service.in  # systemd unit template, rendered by install.sh
+    README.md        # service and manual installation instructions
 config.toml          # runtime config (service endpoint)
 pyproject.toml       # packaging and dependencies
 ```
-
-## Off-limits files
-- `lib/` — vendored Waveshare code (excluded via .claudeignore), treat as a black box.
-  Reference the API it exposes but never modify the files.
 
 ## Dev/test
 ```bash
