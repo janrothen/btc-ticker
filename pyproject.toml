@@ -9,7 +9,13 @@ description = "Bitcoin price ticker for Waveshare 2.13\" e-ink displays on Raspb
 requires-python = ">=3.13"
 dependencies = [
     "requests~=2.33",
-    "pillow~=12.2",
+    "pillow>=12.3,<13",  # 12.3.0 fixes GHSA-8v84-f9pq-wr9x, GHSA-pg7v-jwj7-p798 et al.
+    # Security floors for transitive dependencies of requests. There is no
+    # lockfile, so without these an existing venv keeps vulnerable versions
+    # on `pip install -e .` because the old ones still satisfy requests.
+    "urllib3>=2.8,<3",          # GHSA-mf9v-mfxr-j63j, GHSA-vxq7-64xx-v4gw
+    "certifi>=2026.10.18",      # GHSA-6q48-6c7w-9gw2 (compromised eMudhra CAs)
+    "idna>=3.15,<4",            # GHSA-65pc-fj4g-8rjx
 ]
 
 [project.optional-dependencies]
@@ -22,7 +28,7 @@ rpi = [
     "waveshare-epd @ git+https://github.com/waveshareteam/e-Paper.git@86aa9932f471a50157cf02fafadc2c1b4a965449#subdirectory=RaspberryPi_JetsonNano/python",
 ]
 dev = [
-    "pytest~=9.0",
+    "pytest>=9.0.3,<10",  # GHSA-6w46-j5rx-g56g
     "pytest-cov~=7.1",
     "pre-commit~=4.5",
     "ruff>=0.15.9",
