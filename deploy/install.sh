@@ -17,9 +17,10 @@ SERVICE=btcticker
 UNIT_DEST=/etc/systemd/system/${SERVICE}.service
 HEALTH_TIMEOUT=30
 
-# lgpio has no aarch64 wheel on PyPI or piwheels, so pip compiles it from the
-# sdist. The sdist bundles the lgpio C sources and SWIG output, so it needs a
-# C toolchain and the Python headers, but neither swig nor liblgpio-dev.
+# lgpio has no wheel for Python 3.13 on Pi OS (aarch64 or armv7l) on PyPI or
+# piwheels, so pip compiles it from the sdist. The sdist bundles the lgpio C
+# sources and SWIG output, so it needs a C toolchain and the Python headers,
+# but neither swig nor liblgpio-dev.
 APT_BASE_DEPS=(python3-venv git)
 APT_BUILD_DEPS=(gcc libc6-dev python3-dev)
 
@@ -78,7 +79,11 @@ parse_args() {
 }
 
 apt_installed() {
-    dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q 'install ok installed'
+    # No pipe into grep -q: under pipefail an early grep exit can SIGPIPE
+    # dpkg-query and make an installed package look missing.
+    local status
+    status="$(dpkg-query -W -f='${Status}' "$1" 2>/dev/null)" || return 1
+    [[ $status == "install ok installed" ]]
 }
 
 # 1. Preflight
@@ -107,8 +112,7 @@ preflight() {
 # 2. System packages
 install_system_packages() {
     log "System packages"
-    local wanted=("${APT_BASE_DEPS[@]}")
-    [[ $(uname -m) == aarch64 ]] && wanted+=("${APT_BUILD_DEPS[@]}")
+    local wanted=("${APT_BASE_DEPS[@]}" "${APT_BUILD_DEPS[@]}")
 
     local missing=() pkg
     for pkg in "${wanted[@]}"; do
@@ -206,24 +210,27 @@ sed_escape() {
 # 7. Service unit
 install_service() {
     log "Service unit"
+    # Rendered in memory, so no temp file is left behind if a step fails.
     local rendered
-    rendered="$(mktemp)"
-    # shellcheck disable=SC2064  # expand now: $rendered is local
-    trap "rm -f '$rendered'; trap - RETURN" RETURN
-
-    sed -e "s/@USER@/$(sed_escape "$APP_USER")/g" \
+    rendered="$(sed -e "s/@USER@/$(sed_escape "$APP_USER")/g" \
         -e "s/@APP_DIR@/$(sed_escape "$APP_DIR")/g" \
-        "$APP_DIR/deploy/systemd/${SERVICE}.service.in" >"$rendered"
+        "$APP_DIR/deploy/systemd/${SERVICE}.service.in")"
 
-    if cmp -s "$rendered" "$UNIT_DEST"; then
+    if [[ -f $UNIT_DEST && "$(<"$UNIT_DEST")" == "$rendered" ]]; then
         log "Unit unchanged: $UNIT_DEST"
     else
         log "Installing $UNIT_DEST"
-        sudo install -m 644 -o root -g root "$rendered" "$UNIT_DEST"
+        printf '%s\n' "$rendered" | sudo tee "$UNIT_DEST" >/dev/null
+        sudo chown root:root "$UNIT_DEST"
+        sudo chmod 644 "$UNIT_DEST"
         sudo systemctl daemon-reload
     fi
 
     sudo systemctl enable --quiet "$SERVICE"
+    if ((REBOOT_NEEDED)); then
+        log "Not starting $SERVICE: SPI needs a reboot first"
+        return
+    fi
     log "Restarting $SERVICE"
     # A failed start is reported by the health check below.
     sudo systemctl restart "$SERVICE" || true
@@ -289,12 +296,12 @@ remove_pigpiod() {
         done
         if ((${#extra[@]})); then
             warn "removing ${installed[*]} would also remove: ${extra[*]}"
-            warn "not removing anything; pigpiod is disabled. Decide yourself, e.g.:"
+            warn "not removing any apt packages. Decide yourself, e.g.:"
             warn "  sudo apt-get remove ${installed[*]}"
-        else
-            log "Removing apt packages: ${installed[*]}"
-            sudo apt-get remove -y "${installed[@]}"
+            return
         fi
+        log "Removing apt packages: ${installed[*]}"
+        sudo apt-get remove -y "${installed[@]}"
         changed=1
     fi
 
@@ -319,8 +326,15 @@ main() {
     install_python_env
     remove_obsolete_python_packages
     install_service
-    health_check
-    remove_pigpiod
+    if ((REBOOT_NEEDED)); then
+        # The service cannot open /dev/spidev until after a reboot, so a health
+        # check would always fail; pigpiod stays until a healthy start.
+        warn "skipping the health check and pigpiod removal until after the reboot;"
+        warn "reboot, then rerun ./deploy/install.sh to finish"
+    else
+        health_check
+        remove_pigpiod
+    fi
     summary
 }
 

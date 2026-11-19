@@ -60,6 +60,7 @@ On an existing install, `git pull && ./deploy/install.sh` migrates automatically
 - It replaces the old hand-copied unit with the rendered template.
 - **Only after the service has started healthy on lgpio** (step 9 of the installer), it stops and disables `pigpiod` and removes the `pigpio`, `pigpiod` and `python3-pigpio` apt packages that are installed. It first simulates the removal; if apt would also remove any other package, it removes nothing, prints the list and leaves the decision to you.
 - If the service doesn't come up, the installer prints the journal and leaves `pigpiod` untouched.
+- If the installer had to enable SPI, it does not start the service or touch `pigpiod` on that run; reboot and run it again.
 
 Pass `--keep-pigpiod` to skip the pigpiod step, for example when another program on the Pi still needs it.
 
@@ -67,17 +68,21 @@ Pass `--keep-pigpiod` to skip the pigpiod step, for example when another program
 
 To return to the pigpio-based version:
 
+From the repository root, as the user the service runs as:
+
 ```bash
-cd ~/raspberry/btc-ticker
 git checkout 6647587         # last commit before the lgpio migration
 sudo apt install pigpio      # only if the installer removed it
 sudo systemctl enable --now pigpiod
 .venv/bin/python -m pip install -U -e ".[rpi]"
-sudo cp deploy/systemd/btcticker.service /etc/systemd/system/ && sudo systemctl daemon-reload
+sed -e "s|^User=.*|User=$(id -un)|" -e "s|/home/pi/raspberry/btc-ticker|$PWD|g" \
+    deploy/systemd/btcticker.service > "$TMPDIR/btcticker.service"
+sudo install -m 644 "$TMPDIR/btcticker.service" /etc/systemd/system/btcticker.service
+sudo systemctl daemon-reload
 sudo systemctl restart btcticker
 ```
 
-That commit (or any earlier known-good one) still contains `deploy/systemd/btcticker.service` and the pigpio-based `[rpi]` extra.
+That commit (or any earlier known-good one) still contains `deploy/systemd/btcticker.service` and the pigpio-based `[rpi]` extra. Its unit hard-codes `User=pi` and `/home/pi/raspberry/btc-ticker`; the `sed` line swaps in your user and checkout path.
 
 ## Troubleshooting
 

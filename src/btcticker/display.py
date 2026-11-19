@@ -3,6 +3,10 @@ from PIL import Image
 try:
     from waveshare_epd import epd2in13_V2 as _epd_driver
 except ModuleNotFoundError as e:
+    # Only rewrite the error when the driver itself is missing; a missing
+    # dependency of the driver (e.g. lgpio, spidev) keeps its own message.
+    if e.name not in ("waveshare_epd", "waveshare_epd.epd2in13_V2"):
+        raise
     raise ModuleNotFoundError(
         "waveshare_epd is not installed; run ./deploy/install.sh "
         '(or pip install -e ".[rpi]") on the Raspberry Pi'
