@@ -1,7 +1,7 @@
 import sys
 import types
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 
 def _stub_epd_module():
@@ -11,11 +11,13 @@ def _stub_epd_module():
     mock_epd_instance.height = 250
     mock_epd_instance.width = 122
 
-    mod = types.ModuleType("btcticker.lib.epd2in13_V2")
+    pkg = types.ModuleType("waveshare_epd")
+    mod = types.ModuleType("waveshare_epd.epd2in13_V2")
     mod.EPD = MagicMock(return_value=mock_epd_instance)
+    pkg.epd2in13_V2 = mod
 
-    sys.modules.setdefault("btcticker.lib.epdconfig", MagicMock())
-    sys.modules["btcticker.lib.epd2in13_V2"] = mod
+    sys.modules["waveshare_epd"] = pkg
+    sys.modules["waveshare_epd.epd2in13_V2"] = mod
     sys.modules.pop("btcticker.display", None)
 
     return mock_epd_instance
@@ -60,6 +62,20 @@ class TestDisplay(unittest.TestCase):
         self.mock_epd.sleep.reset_mock()
         self.display.sleep()
         self.mock_epd.sleep.assert_called_once()
+
+
+class TestMissingDriver(unittest.TestCase):
+    def tearDown(self) -> None:
+        sys.modules.pop("btcticker.display", None)
+
+    def test_missing_waveshare_epd_raises_with_install_hint(self):
+        sys.modules.pop("btcticker.display", None)
+        with (
+            patch.dict(sys.modules, {"waveshare_epd": None}),
+            self.assertRaises(ModuleNotFoundError) as ctx,
+        ):
+            import btcticker.display  # noqa: F401
+        self.assertIn("./deploy/install.sh", str(ctx.exception))
 
 
 if __name__ == "__main__":
