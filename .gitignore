@@ -16,3 +16,6 @@ coverage.xml
 .claude/worktrees/
 .env
 .venv/
+
+# lgpio notification FIFOs
+.lgd-nfy*
