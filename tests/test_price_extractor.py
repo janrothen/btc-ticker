@@ -47,6 +47,25 @@ class TestPriceExtractor(unittest.TestCase):
             extractor.formatted_price_from_data({"USD": {"last": 50000}}), "N/A"
         )
 
+    def test_invalid_last_values_return_na(self):
+        # Untrusted API values must degrade to "N/A", never crash the loop.
+        for bad in ["84500", True, None, float("nan"), float("inf"), -1, [1], {}]:
+            with self.subTest(value=bad):
+                self.assertEqual(
+                    self.extractor.formatted_price_from_data({"USD": {"last": bad}}),
+                    "N/A",
+                )
+
+    def test_huge_integer_price_returns_na_instead_of_crashing(self):
+        self.assertEqual(
+            self.extractor.formatted_price_from_data({"USD": {"last": 10**400}}),
+            "N/A",
+        )
+
+    def test_large_but_representable_price_is_formatted(self):
+        result = self.extractor.formatted_price_from_data({"USD": {"last": 10**300}})
+        self.assertTrue(result.startswith("$") and result.endswith("M"))
+
     def test_missing_last_key_returns_na(self):
         extractor = PriceExtractor("USD", "$")
         self.assertEqual(
