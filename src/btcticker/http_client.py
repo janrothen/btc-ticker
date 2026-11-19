@@ -6,10 +6,17 @@ import requests
 # watchdog; see the retry constants in price/bitcoin_price_client.py.
 DEFAULT_TIMEOUT = 10  # seconds
 
+# The error message ends up in the journal; cap how much of an arbitrary
+# server response body is echoed there. The full body stays on `.body`.
+MAX_ERROR_BODY_CHARS = 200
+
 
 class HttpError(Exception):
     def __init__(self, status_code: int, body: str) -> None:
-        super().__init__(f"HTTP {status_code}: {body}")
+        excerpt = body[:MAX_ERROR_BODY_CHARS]
+        if len(body) > MAX_ERROR_BODY_CHARS:
+            excerpt += "..."
+        super().__init__(f"HTTP {status_code}: {excerpt!r}")
         self.status_code = status_code
         self.body = body
 
